@@ -501,6 +501,22 @@ export function TransactionRow({ tx, crop, idx }) {
   )
 }
 
+// ── Field helper — defined at module scope to prevent remount on each keystroke ──
+function FormField({ label, fieldKey, type = 'text', placeholder = '', form, set }) {
+  return (
+    <div>
+      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+      <input
+        type={type}
+        value={form[fieldKey]}
+        onChange={e => set(fieldKey, e.target.value)}
+        placeholder={placeholder}
+        className="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none bg-white"
+      />
+    </div>
+  )
+}
+
 // ── NEW: Add Crop Cycle Form ────────────────────────────────────
 export function AddCropForm({ onAdd, onClose }) {
   const [form, setForm] = useState({
@@ -531,6 +547,7 @@ export function AddCropForm({ onAdd, onClose }) {
     onClose()
   }
 
+  // Alias so JSX below stays compact
   const Field = ({ label, k, type = 'text', placeholder = '' }) => (
     <div>
       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
@@ -548,10 +565,10 @@ export function AddCropForm({ onAdd, onClose }) {
           <button onClick={onClose} className="text-white/70 hover:text-white text-2xl font-bold">✕</button>
         </div>
         <div className="p-6 grid grid-cols-2 gap-4">
-          <Field label="Crop Name *" k="crop" placeholder="e.g. Wheat"/>
-          <Field label="Variety" k="variety" placeholder="e.g. GW-322"/>
-          <Field label="Sowing Date *" k="sown_date" type="date"/>
-          <Field label="Harvest Date" k="harvested_date" type="date"/>
+          <FormField label="Crop Name *" fieldKey="crop" placeholder="e.g. Wheat" form={form} set={set}/>
+          <FormField label="Variety" fieldKey="variety" placeholder="e.g. GW-322" form={form} set={set}/>
+          <FormField label="Sowing Date *" fieldKey="sown_date" type="date" form={form} set={set}/>
+          <FormField label="Harvest Date" fieldKey="harvested_date" type="date" form={form} set={set}/>
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Season</label>
             <select value={form.season} onChange={e => set('season', e.target.value)}
@@ -566,14 +583,14 @@ export function AddCropForm({ onAdd, onClose }) {
               <option>Drip</option><option>Flood</option><option>Sprinkler</option><option>Rainfed</option>
             </select>
           </div>
-          <Field label="Area (Hectares)" k="area_ha" type="number" placeholder="e.g. 5.0"/>
-          <Field label="Total Yield (Tons)" k="yield_tons" type="number" placeholder="e.g. 45"/>
-          <Field label="Total Input Cost (₹)" k="input_cost_inr" type="number" placeholder="e.g. 120000"/>
-          <Field label="Total Revenue (₹)" k="revenue_inr" type="number" placeholder="e.g. 250000"/>
-          <Field label="Market Sold At" k="market_sold" placeholder="e.g. Nashik APMC"/>
-          <Field label="Sale Price (₹/quintal)" k="sale_price_per_q" type="number" placeholder="e.g. 2275"/>
-          <Field label="Water Used (kL)" k="water_used_kl" type="number" placeholder="e.g. 680"/>
-          <Field label="Labour Days" k="labour_days" type="number" placeholder="e.g. 72"/>
+          <FormField label="Area (Hectares)" fieldKey="area_ha" type="number" placeholder="e.g. 5.0" form={form} set={set}/>
+          <FormField label="Total Yield (Tons)" fieldKey="yield_tons" type="number" placeholder="e.g. 45" form={form} set={set}/>
+          <FormField label="Total Input Cost (₹)" fieldKey="input_cost_inr" type="number" placeholder="e.g. 120000" form={form} set={set}/>
+          <FormField label="Total Revenue (₹)" fieldKey="revenue_inr" type="number" placeholder="e.g. 250000" form={form} set={set}/>
+          <FormField label="Market Sold At" fieldKey="market_sold" placeholder="e.g. Nashik APMC" form={form} set={set}/>
+          <FormField label="Sale Price (₹/quintal)" fieldKey="sale_price_per_q" type="number" placeholder="e.g. 2275" form={form} set={set}/>
+          <FormField label="Water Used (kL)" fieldKey="water_used_kl" type="number" placeholder="e.g. 680" form={form} set={set}/>
+          <FormField label="Labour Days" fieldKey="labour_days" type="number" placeholder="e.g. 72" form={form} set={set}/>
           <div className="col-span-2">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diseases Observed (comma-separated)</label>
             <input value={form.disease_incidents} onChange={e => set('disease_incidents', e.target.value)} placeholder="e.g. Aphids, Yellow Rust"
