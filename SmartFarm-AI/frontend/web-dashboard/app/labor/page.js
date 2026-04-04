@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Users, Star, MapPin, Phone, Check, Search, Filter, CalendarDays, 
@@ -10,14 +10,14 @@ import {
 
 // ── HUGE MOCK DATASET (AI Enriched) ──
 const initialWorkers = [
-  { id:1, name:'Suresh Yadav', skills:['Harvesting','Sowing','Irrigation'], rating:4.9, reviews: 42, exp:'8 yrs', dist:'1.2 km', rate:650, available:true, lang:'Hindi', reliability: 98, aiMatch: 95, verified: true, avatar: 'SY', lastJob: 'Harvested Wheat' },
-  { id:2, name:'Ramkali Devi', skills:['Weeding','Transplanting'], rating:4.7, reviews: 31, exp:'5 yrs', dist:'3.1 km', rate:550, available:true, lang:'Hindi, Bhojpuri', reliability: 94, aiMatch: 88, verified: true, avatar: 'RD', lastJob: 'Paddy Transplanting' },
-  { id:3, name:'Arjun Patil', skills:['Tractor Operator','Spraying'], rating:4.8, reviews: 55, exp:'10 yrs', dist:'5.5 km', rate:850, available:false, lang:'Marathi, Hindi', reliability: 99, aiMatch: 92, verified: true, avatar: 'AP', lastJob: 'Pesticide Application' },
-  { id:4, name:'Krishnamma S.', skills:['Harvesting','Grading','Packing'], rating:4.6, reviews: 18, exp:'6 yrs', dist:'2.8 km', rate:600, available:true, lang:'Telugu, Kannada', reliability: 89, aiMatch: 85, verified: false, avatar: 'KS', lastJob: 'Tomato Grading' },
-  { id:5, name:'Mohan Gawli', skills:['Drone Operator','Spraying','Tech Equip'], rating:5.0, reviews: 12, exp:'3 yrs', dist:'8.2 km', rate:1200, available:true, lang:'Marathi, English', reliability: 100, aiMatch: 97, verified: true, avatar: 'MG', lastJob: 'Drone Spraying' },
-  { id:6, name:'Fatima Shaikh', skills:['Weeding','Sowing','Fertilization'], rating:4.5, reviews: 24, exp:'4 yrs', dist:'4.0 km', rate:500, available:true, lang:'Urdu, Hindi', reliability: 91, aiMatch: 81, verified: true, avatar: 'FS', lastJob: 'Fertilizer Spread' },
-  { id:7, name:'Vijay Kumar', skills:['Irrigation','Hard Labor','Tractor'], rating:4.9, reviews: 88, exp:'15 yrs', dist:'2.0 km', rate:700, available:true, lang:'Hindi, Punjabi', reliability: 96, aiMatch: 90, verified: true, avatar: 'VK', lastJob: 'Pipe Laying' },
-  { id:8, name:'Sunita Meena', skills:['Harvesting','Weeding'], rating:4.4, reviews: 9, exp:'2 yrs', dist:'6.0 km', rate:450, available:true, lang:'Hindi', reliability: 85, aiMatch: 75, verified: false, avatar: 'SM', lastJob: 'Cotton Picking' },
+  { id:1, name:'Suresh Yadav', phone:'919999999991', skills:['Harvesting','Sowing','Irrigation'], rating:4.9, reviews: 42, exp:'8 yrs', dist:'1.2 km', rate:650, available:true, lang:'Hindi', reliability: 98, aiMatch: 95, verified: true, avatar: 'SY', lastJob: 'Harvested Wheat' },
+  { id:2, name:'Ramkali Devi', phone:'919999999992', skills:['Weeding','Transplanting'], rating:4.7, reviews: 31, exp:'5 yrs', dist:'3.1 km', rate:550, available:true, lang:'Hindi, Bhojpuri', reliability: 94, aiMatch: 88, verified: true, avatar: 'RD', lastJob: 'Paddy Transplanting' },
+  { id:3, name:'Arjun Patil', phone:'919999999993', skills:['Tractor Operator','Spraying'], rating:4.8, reviews: 55, exp:'10 yrs', dist:'5.5 km', rate:850, available:false, lang:'Marathi, Hindi', reliability: 99, aiMatch: 92, verified: true, avatar: 'AP', lastJob: 'Pesticide Application' },
+  { id:4, name:'Krishnamma S.', phone:'919999999994', skills:['Harvesting','Grading','Packing'], rating:4.6, reviews: 18, exp:'6 yrs', dist:'2.8 km', rate:600, available:true, lang:'Telugu, Kannada', reliability: 89, aiMatch: 85, verified: false, avatar: 'KS', lastJob: 'Tomato Grading' },
+  { id:5, name:'Mohan Gawli', phone:'919999999995', skills:['Drone Operator','Spraying','Tech Equip'], rating:5.0, reviews: 12, exp:'3 yrs', dist:'8.2 km', rate:1200, available:true, lang:'Marathi, English', reliability: 100, aiMatch: 97, verified: true, avatar: 'MG', lastJob: 'Drone Spraying' },
+  { id:6, name:'Fatima Shaikh', phone:'919999999996', skills:['Weeding','Sowing','Fertilization'], rating:4.5, reviews: 24, exp:'4 yrs', dist:'4.0 km', rate:500, available:true, lang:'Urdu, Hindi', reliability: 91, aiMatch: 81, verified: true, avatar: 'FS', lastJob: 'Fertilizer Spread' },
+  { id:7, name:'Vijay Kumar', phone:'919999999997', skills:['Irrigation','Hard Labor','Tractor'], rating:4.9, reviews: 88, exp:'15 yrs', dist:'2.0 km', rate:700, available:true, lang:'Hindi, Punjabi', reliability: 96, aiMatch: 90, verified: true, avatar: 'VK', lastJob: 'Pipe Laying' },
+  { id:8, name:'Sunita Meena', phone:'919999999998', skills:['Harvesting','Weeding'], rating:4.4, reviews: 9, exp:'2 yrs', dist:'6.0 km', rate:450, available:true, lang:'Hindi', reliability: 85, aiMatch: 75, verified: false, avatar: 'SM', lastJob: 'Cotton Picking' },
 ]
 
 // ── MAIN APPLICATION COMPONENT ──
@@ -30,6 +30,29 @@ export default function LaborHub() {
     { id: 101, worker: initialWorkers[0], date: 'Oct 24, 2026', status: 'Upcoming', type: 'Harvesting', amount: 650 },
     { id: 102, worker: initialWorkers[2], date: 'Oct 15, 2026', status: 'Completed', type: 'Spraying', amount: 850 }
   ])
+  const [myProfileId, setMyProfileId] = useState(null)
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedWorkers = localStorage.getItem('smartfarm_workers')
+    const savedBookings = localStorage.getItem('smartfarm_bookings')
+    const savedProfile = localStorage.getItem('smartfarm_myProfileId')
+    if (savedWorkers) setWorkers(JSON.parse(savedWorkers))
+    if (savedBookings) setBookings(JSON.parse(savedBookings))
+    if (savedProfile) setMyProfileId(parseInt(savedProfile))
+  }, [])
+
+  // Sync to localStorage
+  useEffect(() => { localStorage.setItem('smartfarm_workers', JSON.stringify(workers)) }, [workers])
+  useEffect(() => { localStorage.setItem('smartfarm_bookings', JSON.stringify(bookings)) }, [bookings])
+
+  const handleRemoveProfile = () => {
+    if(confirm('Are you sure you want to remove your profile from the SmartFarm Marketplace?')) {
+      setWorkers(workers.filter(w => w.id !== myProfileId))
+      setMyProfileId(null)
+      localStorage.removeItem('smartfarm_myProfileId')
+    }
+  }
 
   // Book a worker from the Find Tab
   const handleHire = (workerId, jobType, date) => {
@@ -45,7 +68,17 @@ export default function LaborHub() {
     
     // Mark as pending/booked locally
     setWorkers(workers.map(w => w.id === workerId ? {...w, available: false} : w))
-    alert(`Hire request sent to ${worker.name}. They will be notified via SMS.`)
+    
+    // Auto-open WhatsApp message directly to the real mobile number
+    const targetPhone = worker.phone || '919999999999';
+    // Format the mobile number to ensure it has 91 prefix if missing, WhatsApp requires country code usually without + but + is also supported
+    const cleanPhone = targetPhone.replace(/\D/g, ''); 
+    const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+    
+    // Construct the WhatsApp URI
+    const msg = `Namaste ${worker.name},\nI would like to hire you for *${jobType || 'General Farm Work'}* on ${date || 'Tomorrow'}.\nI am offering ₹${worker.rate}/day via SmartFarm. Please confirm!`;
+    const uri = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`;
+    window.open(uri, '_blank');
   }
 
   return (
@@ -95,9 +128,9 @@ export default function LaborHub() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
         >
-          {activeTab === 'find' && <FindLabour workers={workers} onHire={handleHire} />}
+          {activeTab === 'find' && <FindLabour workers={workers} onHire={handleHire} myProfileId={myProfileId} onRemoveProfile={handleRemoveProfile} />}
           {activeTab === 'bookings' && <MyBookings bookings={bookings} />}
-          {activeTab === 'register' && <RegisterLabour />}
+          {activeTab === 'register' && <JoinHubFlow setWorkers={setWorkers} setActiveTab={setActiveTab} setMyProfileId={setMyProfileId} />}
         </motion.div>
       </AnimatePresence>
 
@@ -106,7 +139,7 @@ export default function LaborHub() {
 }
 
 // ── 1. FIND LABOUR VIEW (The Marketplace) ──
-function FindLabour({ workers, onHire }) {
+function FindLabour({ workers, onHire, myProfileId, onRemoveProfile }) {
   const [search, setSearch] = useState('')
   const [skillFilter, setSkillFilter] = useState('All')
   const [showAvail, setShowAvail] = useState(false)
@@ -122,6 +155,18 @@ function FindLabour({ workers, onHire }) {
 
   return (
     <div className="space-y-6">
+      {myProfileId && workers.some(w => w.id === myProfileId) && (
+        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-5 mb-6 flex justify-between items-center shadow-sm">
+          <div>
+            <h3 className="font-bold text-rose-800 tracking-tight">Your Profile is Active</h3>
+            <p className="text-sm font-medium text-rose-600 mt-0.5">You are currently visible to farmers in the marketplace.</p>
+          </div>
+          <button onClick={onRemoveProfile} className="bg-rose-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-rose-700 shadow-md transition-colors leading-none flex items-center justify-center">
+            Remove My Profile
+          </button>
+        </div>
+      )}
+
       {/* Controls */}
       <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
@@ -316,7 +361,7 @@ function MyBookings({ bookings }) {
              </div>
              
              {b.status === 'Pending' && (
-               <button className="flex items-center gap-2 bg-slate-900 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-slate-800 shadow-md">
+               <button onClick={() => window.location.href = `tel:${b.worker.phone || '919999999999'}`} className="flex items-center gap-2 bg-slate-900 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-slate-800 shadow-md">
                  <Phone size={16}/> Call
                </button>
              )}
@@ -338,77 +383,243 @@ function MyBookings({ bookings }) {
   )
 }
 
-// ── 3. REGISTER LABOURER VIEW (Onboarding Flow) ──
-function RegisterLabour() {
+// ── 3. JOIN HUB VIEW (Onboarding Flow) ──
+function JoinHubFlow({ setWorkers, setActiveTab, setMyProfileId }) {
+  const [step, setStep] = useState('ROLE_SELECT'); // ROLE_SELECT, OTP, LABOUR_DETAILS, FARMER_DETAILS, VERIFICATION, SUCCESS_LABOUR, SUCCESS_FARMER
+  const [role, setRole] = useState(null); // 'LABOURER', 'FARMER'
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [expectedOtp, setExpectedOtp] = useState('');
+
+  // Form State
+  const [name, setName] = useState('');
+  const [wage, setWage] = useState(500);
+  const [skills, setSelectedSkills] = useState(['Harvesting']);
+
+  const handleRoleSelect = (r) => {
+    setRole(r)
+    setStep('OTP')
+    setOtpSent(false)
+    setOtp('')
+  }
+
+  const handleSendOtp = () => {
+    if(phone.replace(/\D/g,'').length < 10) {
+      alert("Please enter a valid 10-digit mobile number first.");
+      return;
+    }
+    const generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
+    setExpectedOtp(generatedCode);
+    setOtpSent(true);
+    
+    // Simulating SMS push logic for the hackathon prototype
+    alert(`[Mock SMS Notification]\n\nSmartFarm Alert: Your verification code is ${generatedCode}. Do not share this with anyone.`);
+  }
+
+  const handleOtpSubmit = () => {
+    if(!otpSent) {
+      alert("Please click 'Send OTP' first.");
+      return;
+    }
+    if(otp.trim() !== expectedOtp) {
+      alert(`Invalid OTP. Please check the code sent to ${phone} and try again.`);
+      return;
+    }
+    setStep(role === 'LABOURER' ? 'LABOUR_DETAILS' : 'FARMER_DETAILS')
+  }
+
+  const handleLabourSubmit = () => {
+    setStep('VERIFICATION')
+    setTimeout(() => {
+      const newId = Math.floor(Math.random() * 10000)
+      setStep('SUCCESS_LABOUR')
+      setWorkers(prev => [{
+        id: newId,
+        name: name || 'Aman M.',
+        phone: phone || '919999999999',
+        skills: skills,
+        rating: 5.0, reviews: 0, exp: '1 yr', dist: '0.5 km', rate: wage, available: true, lang: 'Hindi', reliability: 100, aiMatch: 99, verified: true, avatar: name ? name.substring(0,2).toUpperCase() : 'AM', lastJob: 'New Profile'
+      }, ...prev])
+      setMyProfileId(newId)
+      localStorage.setItem('smartfarm_myProfileId', newId)
+    }, 2000)
+  }
+
+  const handleFarmerSubmit = () => {
+    setStep('SUCCESS_FARMER')
+  }
+
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden max-w-4xl mx-auto flex flex-col md:flex-row min-h-[500px]">
-      
-      {/* Side Panel */}
-      <div className="bg-slate-900 text-white p-8 md:w-1/3 flex flex-col justify-between">
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden max-w-5xl mx-auto flex flex-col md:flex-row min-h-[550px]">
+       {/* Left side static brand panel */}
+       <div className="bg-slate-900 text-white p-8 md:w-1/3 flex flex-col justify-between">
         <div>
           <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-2xl border border-white/20 mb-6">
             <Users size={24} className="text-emerald-400"/>
           </div>
-          <h2 className="text-2xl font-black mb-3">Join Local Labour Hub</h2>
+          <h2 className="text-2xl font-black mb-3">Join SmartFarm Hub</h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-8">
-            Create your profile to get discovered by farmers near you. Consistent work, guaranteed payments, and no middlemen.
+            The largest verified agricultural marketplace. Farmers find reliable help. Labourers find consistent, fair work.
           </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-sm font-medium text-slate-300">
-              <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">1</span>
-              Basic Details
-            </div>
-            <div className="flex items-center gap-3 text-sm font-bold text-white">
-              <span className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">2</span>
-              Skills & Rates
-            </div>
-            <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
-              <span className="w-8 h-8 rounded-full bg-slate-800 text-slate-600 flex items-center justify-center font-bold">3</span>
-              Aadhaar Verify
-            </div>
+
+          <div className="mt-8 space-y-4">
+             <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+               <div className="flex items-center gap-2 mb-2">
+                 <ShieldCheck size={16} className="text-emerald-400"/> <span className="font-bold text-sm">Verified Network</span>
+               </div>
+               <p className="text-xs text-slate-400">All users undergo identity and phone verification for trust.</p>
+             </div>
           </div>
         </div>
-        
-        <div className="mt-12 p-4 bg-emerald-900/30 rounded-2xl border border-emerald-500/20 shadow-inner">
+
+        <div className="mt-8 p-4 bg-emerald-900/30 rounded-2xl border border-emerald-500/20 shadow-inner">
           <p className="text-xs font-medium text-emerald-200/80 mb-2">Voice Support Enabled</p>
           <button className="w-full flex items-center justify-center gap-2 bg-emerald-600 py-3 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
-            Tap to Speak (Bhojpuri)
+            Tap to Speak
           </button>
         </div>
       </div>
 
-      {/* Form Area */}
-      <div className="p-8 md:p-12 md:w-2/3 flex flex-col justify-center bg-slate-50">
-        <div className="space-y-6 max-w-md mx-auto w-full">
-          <div>
-            <h3 className="text-xl font-black text-slate-800 mb-1">What work do you do?</h3>
-            <p className="text-sm font-medium text-slate-500 mb-6">Select your top skills so right farmers can find you.</p>
-          </div>
+       {/* Right side Wizard */}
+       <div className="p-8 md:p-12 md:w-2/3 flex flex-col justify-center bg-slate-50 relative overflow-hidden">
+          <AnimatePresence mode="wait">
 
-          <div className="grid grid-cols-2 gap-3 mb-8">
-            {['Harvesting', 'Sowing', 'Pesticide Spray', 'Tractor Driving', 'Weeding', 'Loading & Unloading'].map((s,i) => (
-              <label key={s} className={`cursor-pointer flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${i<2 ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
-                <input type="checkbox" className="w-5 h-5 accent-emerald-600" defaultChecked={i<2}/>
-                <span className={`text-sm font-bold ${i<2 ? 'text-emerald-800' : 'text-slate-600'}`}>{s}</span>
-              </label>
-            ))}
-          </div>
+             {step === 'ROLE_SELECT' && (
+                <motion.div key="role" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="max-w-md mx-auto w-full">
+                   <h3 className="text-2xl font-black text-slate-800 mb-2">How do you want to use the Hub?</h3>
+                   <p className="text-slate-500 text-sm mb-8">Select your role to customize your onboarding experience.</p>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expected Daily Wage (₹)</label>
-            <input type="number" defaultValue={500} className="w-full border-2 border-slate-200 rounded-xl p-4 text-lg font-black bg-white focus:border-emerald-500 focus:outline-none focus:ring-0 transition-colors shadow-inner" />
-          </div>
-          
-          <div className="pt-6 border-t border-slate-200 flex justify-between items-center gap-4">
-            <button className="px-6 py-4 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-200 transition-colors">Back</button>
-            <button className="flex-1 py-4 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 shadow-xl shadow-slate-900/10">
-              Continue to Verify <Check size={18}/>
-            </button>
-          </div>
-        </div>
-      </div>
+                   <div className="space-y-4">
+                     <button onClick={()=>handleRoleSelect('LABOURER')} className="w-full text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-emerald-500 group transition-all">
+                       <h4 className="font-black text-lg text-slate-800 group-hover:text-emerald-700 flex items-center gap-2"><Briefcase size={20}/> I want to work</h4>
+                       <p className="text-sm text-slate-500 mt-1">I am a labourer looking for agricultural jobs.</p>
+                     </button>
+                     <button onClick={()=>handleRoleSelect('FARMER')} className="w-full text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-emerald-500 group transition-all">
+                       <h4 className="font-black text-lg text-slate-800 group-hover:text-emerald-700 flex items-center gap-2"><MapPin size={20}/> I want to hire</h4>
+                       <p className="text-sm text-slate-500 mt-1">I am a farmer or contractor looking to hire workers.</p>
+                     </button>
+                   </div>
+                </motion.div>
+             )}
 
+             {step === 'OTP' && (
+                <motion.div key="otp" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="max-w-md mx-auto w-full">
+                   <button onClick={()=>setStep('ROLE_SELECT')} className="text-sm font-bold text-slate-400 mb-6 flex items-center hover:text-slate-600"><X size={16}/> Back</button>
+                   <h3 className="text-2xl font-black text-slate-800 mb-2">Verify Mobile Number</h3>
+                   <p className="text-slate-500 text-sm mb-8">We sent a 4-digit code to verify your identity.</p>
+
+                   <div className="space-y-5">
+                     <div>
+                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mobile Number</label>
+                       <div className="flex gap-2">
+                         <input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} disabled={otpSent} placeholder="+91 XXXXX XXXXX" className="w-full border-2 border-slate-200 rounded-xl p-4 text-base font-bold bg-white focus:border-emerald-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500" />
+                         <button onClick={handleSendOtp} disabled={otpSent} className="px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition-colors disabled:bg-slate-300 whitespace-nowrap">
+                           {otpSent ? 'Sent' : 'Send OTP'}
+                         </button>
+                       </div>
+                     </div>
+                     {otpSent && (
+                       <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}}>
+                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-5">OTP Code</label>
+                         <input type="text" value={otp} onChange={e=>setOtp(e.target.value)} placeholder="0 0 0 0" className="w-full border-2 border-slate-200 rounded-xl p-4 text-2xl tracking-widest font-black bg-white focus:border-emerald-500 focus:outline-none text-center" />
+                       </motion.div>
+                     )}
+                     <button onClick={handleOtpSubmit} className={`w-full py-4 rounded-xl font-bold text-sm text-white transition-colors shadow-lg ${otpSent ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : 'bg-slate-300 cursor-not-allowed shadow-none'}`}>
+                       Verify & Continue
+                     </button>
+                   </div>
+                </motion.div>
+             )}
+
+             {step === 'LABOUR_DETAILS' && (
+                <motion.div key="labour" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="max-w-md mx-auto w-full">
+                   <h3 className="text-2xl font-black text-slate-800 mb-1">Labour Profile</h3>
+                   <p className="text-sm font-medium text-slate-500 mb-6">Select your top skills so right farmers can find you.</p>
+
+                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4">Full Name</label>
+                   <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Ramesh Kumar" className="w-full border-2 border-slate-200 rounded-xl p-3 text-base font-bold bg-white focus:border-emerald-500 focus:outline-none mb-4" />
+
+                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Top Skills</label>
+                   <div className="grid grid-cols-2 gap-3 mb-6">
+                     {['Harvesting', 'Sowing', 'Pesticide Spray', 'Tractor Driving', 'Weeding', 'Loading'].map((s) => (
+                       <label key={s} className={`cursor-pointer flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${skills.includes(s) ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                         <input type="checkbox" checked={skills.includes(s)} onChange={(e)=>{
+                           if(e.target.checked) setSelectedSkills([...skills, s]);
+                           else setSelectedSkills(skills.filter(sk => sk !== s));
+                         }} className="w-4 h-4 accent-emerald-600"/>
+                         <span className={`text-xs font-bold ${skills.includes(s) ? 'text-emerald-800' : 'text-slate-600'}`}>{s}</span>
+                       </label>
+                     ))}
+                   </div>
+
+                   <div>
+                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expected Daily Wage (₹)</label>
+                     <input type="number" value={wage} onChange={(e)=>setWage(e.target.value)} className="w-full border-2 border-slate-200 rounded-xl p-4 text-lg font-black bg-white focus:border-emerald-500 focus:outline-none" />
+                   </div>
+
+                   <div className="pt-6 mt-6 border-t border-slate-200 flex justify-between items-center gap-4">
+                     <button onClick={handleLabourSubmit} className="flex-1 py-4 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 shadow-xl shadow-slate-900/10">
+                       Complete Setup <Check size={18}/>
+                     </button>
+                   </div>
+                </motion.div>
+             )}
+
+             {step === 'FARMER_DETAILS' && (
+                <motion.div key="farmer" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="max-w-md mx-auto w-full">
+                   <h3 className="text-2xl font-black text-slate-800 mb-1">Setup Farm Profile</h3>
+                   <p className="text-sm font-medium text-slate-500 mb-6">Help us find the best labourers near your farm.</p>
+
+                   <div className="space-y-5">
+                     <div>
+                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Farm Owner Name</label>
+                       <input type="text" placeholder="e.g. Ramesh Kumar" className="w-full border-2 border-slate-200 rounded-xl p-3 text-base font-bold bg-white focus:border-emerald-500 focus:outline-none" />
+                     </div>
+                     <div>
+                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Farm Location (Village / District)</label>
+                       <input type="text" placeholder="Auto-detecting via GPS..." className="w-full border-2 border-slate-200 rounded-xl p-3 text-base font-bold bg-emerald-50 text-emerald-800 border-emerald-200 focus:outline-none" />
+                     </div>
+                     <button onClick={handleFarmerSubmit} className="w-full mt-4 py-4 rounded-xl font-bold text-sm bg-emerald-600 text-white flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/20">
+                       Start Hiring Local Labour <Check size={18}/>
+                     </button>
+                   </div>
+                </motion.div>
+             )}
+
+             {step === 'VERIFICATION' && (
+                <motion.div key="verif" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="max-w-sm mx-auto w-full text-center py-10">
+                   <div className="w-20 h-20 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin mx-auto mb-6"></div>
+                   <h3 className="text-xl font-black text-slate-800 mb-2">Verifying Identity</h3>
+                   <p className="text-slate-500 text-sm">Cross-checking Aadhaar details and initializing SmartFarm AI Trust Score...</p>
+                </motion.div>
+             )}
+
+             {step === 'SUCCESS_LABOUR' && (
+                <motion.div key="succ_l" initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="max-w-sm mx-auto w-full text-center py-10">
+                   <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                     <BadgeCheck size={48} />
+                   </div>
+                   <h3 className="text-2xl font-black text-slate-800 mb-2">Profile Live!</h3>
+                   <p className="text-slate-500 text-sm mb-8">You are now visible to hundreds of verified farmers in your district.</p>
+                   <button onClick={()=>setActiveTab('find')} className="w-full py-4 rounded-xl font-bold text-sm bg-slate-900 text-white">Go to Marketplace</button>
+                </motion.div>
+             )}
+
+             {step === 'SUCCESS_FARMER' && (
+                <motion.div key="succ_f" initial={{opacity:0,scale:0.9}} animate={{opacity:1,scale:1}} className="max-w-sm mx-auto w-full text-center py-10">
+                   <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                     <Check size={48} />
+                   </div>
+                   <h3 className="text-2xl font-black text-slate-800 mb-2">Account Ready</h3>
+                   <p className="text-slate-500 text-sm mb-8">You can now post jobs and hire verified local labourers.</p>
+                   <button onClick={()=>setActiveTab('find')} className="w-full py-4 rounded-xl font-bold text-sm bg-slate-900 text-white">Find Labour Now</button>
+                </motion.div>
+             )}
+
+          </AnimatePresence>
+       </div>
     </div>
   )
 }
+
