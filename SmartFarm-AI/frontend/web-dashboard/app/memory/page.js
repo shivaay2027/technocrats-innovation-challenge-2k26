@@ -465,39 +465,39 @@ export default function FarmMemoryPage() {
               </table>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <h4 className="font-bold text-slate-800 mb-1 text-sm">Input Cost vs Yield Correlation</h4>
-          <p className="text-xs text-slate-400 mb-4">Higher investment vs actual harvest output — identify your most profitable seasons</p>
-          <div className="space-y-3">
-            {[...cropHistory].sort((a,b) => b.input_cost_inr - a.input_cost_inr).map((c, i) => {
-              const maxRev = Math.max(...cropHistory.map(x => x.revenue_inr))
-              const costPct = (c.input_cost_inr / Math.max(...cropHistory.map(x => x.input_cost_inr))) * 100
-              const revPct  = (c.revenue_inr / maxRev) * 100
-              const roi = ((c.revenue_inr - c.input_cost_inr) / c.input_cost_inr * 100).toFixed(0)
-              return (
-                <div key={c.id} className="p-3 bg-slate-50 rounded-xl">
-                  <div className="flex justify-between items-center text-xs mb-2">
-                    <span className="font-bold text-slate-700">{c.crop} <span className="text-slate-400">({c.season} {c.sown_date?.slice(0,4)})</span></span>
-                    <span className={`font-bold px-2 py-0.5 rounded-full ${parseInt(roi)>0?'bg-green-100 text-green-700':'bg-red-100 text-red-600'}`}>ROI {roi}%</span>
-                  </div>
-                  <div className="flex gap-3 items-center">
-                    <span className="text-xs text-red-500 w-12 font-semibold">Cost</span>
-                    <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
-                      <motion.div initial={{width:0}} animate={{width:`${costPct}%`}} transition={{duration:0.6,delay:i*0.05}} className="h-full bg-red-400 rounded-full"/>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h4 className="font-bold text-slate-800 mb-1 text-sm">Input Cost vs Yield Correlation</h4>
+            <p className="text-xs text-slate-400 mb-4">Higher investment vs actual harvest output — identify your most profitable seasons</p>
+            <div className="space-y-3">
+              {[...cropHistory].sort((a,b) => b.input_cost_inr - a.input_cost_inr).map((c, i) => {
+                const maxRev = Math.max(...cropHistory.map(x => x.revenue_inr))
+                const costPct = (c.input_cost_inr / Math.max(...cropHistory.map(x => x.input_cost_inr))) * 100
+                const revPct  = (c.revenue_inr / maxRev) * 100
+                const roi = ((c.revenue_inr - c.input_cost_inr) / c.input_cost_inr * 100).toFixed(0)
+                return (
+                  <div key={c.id} className="p-3 bg-slate-50 rounded-xl">
+                    <div className="flex justify-between items-center text-xs mb-2">
+                      <span className="font-bold text-slate-700">{c.crop} <span className="text-slate-400">({c.season} {c.sown_date?.slice(0,4)})</span></span>
+                      <span className={`font-bold px-2 py-0.5 rounded-full ${parseInt(roi)>0?'bg-green-100 text-green-700':'bg-red-100 text-red-600'}`}>ROI {roi}%</span>
                     </div>
-                    <span className="text-xs text-slate-500 w-20 text-right">₹{c.input_cost_inr.toLocaleString()}</span>
-                  </div>
-                  <div className="flex gap-3 items-center mt-1">
-                    <span className="text-xs text-green-600 w-12 font-semibold">Rev</span>
-                    <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
-                      <motion.div initial={{width:0}} animate={{width:`${revPct}%`}} transition={{duration:0.6,delay:i*0.05+0.1}} className="h-full bg-green-500 rounded-full"/>
+                    <div className="flex gap-3 items-center">
+                      <span className="text-xs text-red-500 w-12 font-semibold">Cost</span>
+                      <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <motion.div initial={{width:0}} animate={{width:`${costPct}%`}} transition={{duration:0.6,delay:i*0.05}} className="h-full bg-red-400 rounded-full"/>
+                      </div>
+                      <span className="text-xs text-slate-500 w-20 text-right">₹{c.input_cost_inr.toLocaleString()}</span>
                     </div>
-                    <span className="text-xs text-slate-500 w-20 text-right">₹{c.revenue_inr.toLocaleString()}</span>
+                    <div className="flex gap-3 items-center mt-1">
+                      <span className="text-xs text-green-600 w-12 font-semibold">Rev</span>
+                      <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <motion.div initial={{width:0}} animate={{width:`${revPct}%`}} transition={{duration:0.6,delay:i*0.05+0.1}} className="h-full bg-green-500 rounded-full"/>
+                      </div>
+                      <span className="text-xs text-slate-500 w-20 text-right">₹{c.revenue_inr.toLocaleString()}</span>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         </div>
       )
