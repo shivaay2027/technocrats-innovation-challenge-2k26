@@ -5,16 +5,19 @@ import {
   BookOpen, Brain, History, Sprout, AlertTriangle, Activity,
   MapPin, Shield, Users, MessageCircle, Star, Lock,
   CheckCircle2, XCircle, RefreshCw, Database, Cpu, Globe,
-  ChevronRight, Droplet, Plus, Wind, ShoppingCart,
+  ChevronRight, Droplet, Plus, Wind, ShoppingCart, Pencil, Trash2, Save,
 } from 'lucide-react'
 
 import {
-  API, FARM_PROFILE, CROP_HISTORY, SOIL_READINGS,
-  IOT_EVENTS, INTERACTION_LOG, FEEDBACK_LOG,
-  REGIONAL_BENCHMARKS, MEMORY_LAYERS, MEMORY_API_PAYLOAD,
-  IRRIGATION_EVENTS, DISEASE_HISTORY, WEATHER_HISTORY,
-  AI_ACCURACY_TREND, MEMORY_QA_EXAMPLES,
+  API, MEMORY_LAYERS, AI_ACCURACY_TREND, MEMORY_QA_EXAMPLES,
+  REGIONAL_BENCHMARKS, INTERACTION_LOG,
 } from './data'
+
+const MEM_API = (e) => `/api/memory/${e}`
+const apiFetch = (e) => fetch(MEM_API(e), { cache: 'no-store' }).then(r => r.json())
+const apiPost  = (e, body) => fetch(MEM_API(e), { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json())
+const apiPut   = (e, body) => fetch(MEM_API(e), { method: 'PUT',  headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json())
+const apiDel   = (e, id)   => fetch(`${MEM_API(e)}?id=${id}`, { method: 'DELETE' }).then(r => r.json())
 
 import {
   StatCard, SectionHeading, MemoryLayerCard, InsightCard,
@@ -57,54 +60,161 @@ function Spinner() {
 }
 
 export default function FarmMemoryPage() {
-  const [tab, setTab]                 = useState('overview')
-  const [loading, setLoading]         = useState(true)
-  const [insightData, setInsightData] = useState(null)
-  const [anomalyData, setAnomalyData] = useState(null)
-  const [soilApiData, setSoilApiData] = useState(null)
-  const [fbRatings, setFbRatings]     = useState({})
-  const [cropHistory, setCropHistory] = useState(CROP_HISTORY)
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [tab, setTab]                     = useState('overview')
+  const [loading, setLoading]             = useState(true)
+  const [insightData, setInsightData]     = useState(null)
+  const [anomalyData, setAnomalyData]     = useState(null)
+  const [soilApiData, setSoilApiData]     = useState(null)
 
-  const loadAll = useCallback(async () => {
+  // Persistent data state — fetched from API
+  const [farmProfile, setFarmProfile]     = useState(null)
+  const [cropHistory, setCropHistory]     = useState([])
+  const [soilReadings, setSoilReadings]   = useState([])
+  const [irrigEvents, setIrrigEvents]     = useState([])
+  const [diseaseHist, setDiseaseHist]     = useState([])
+  const [weatherHist, setWeatherHist]     = useState([])
+  const [feedbackLog, setFeedbackLog]     = useState([])
+  const [iotEvents, setIotEvents]         = useState([])
+
+  // UI state
+  const [showAddForm, setShowAddForm]         = useState(false)
+  const [showProfileEdit, setShowProfileEdit] = useState(false)
+  const [showAddSoil, setShowAddSoil]         = useState(false)
+  const [showAddIrrig, setShowAddIrrig]       = useState(false)
+  const [showAddDisease, setShowAddDisease]   = useState(false)
+  const [showAddWeather, setShowAddWeather]   = useState(false)
+  const [toast, setToast]                     = useState(null)
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000) }
+
+  // ── Load all persistent data from API ─────────────────────────
+  const loadPersistentData = useCallback(async () => {
+    const [profile, crops, soil, irrig, disease, weather, feedback, iot] = await Promise.all([
+      apiFetch('farm-profile'),
+      apiFetch('crop-history'),
+      apiFetch('soil-readings'),
+      apiFetch('irrigation-events'),
+      apiFetch('disease-history'),
+      apiFetch('weather-history'),
+      apiFetch('feedback-log'),
+      apiFetch('iot-events'),
+    ])
+    setFarmProfile(profile)
+    setCropHistory(crops)
+    setSoilReadings(soil)
+    setIrrigEvents(irrig)
+    setDiseaseHist(disease)
+    setWeatherHist(weather)
+    setFeedbackLog(feedback)
+    setIotEvents(iot)
+  }, [])
+
+  // ── Load AI backend data ───────────────────────────────────────
+  const loadAiData = useCallback(async () => {
     setLoading(true)
     try {
-      const lastSoil = SOIL_READINGS[SOIL_READINGS.length - 1]
+      const lastSoil = soilReadings[soilReadings.length - 1]
+      if (!lastSoil) { setLoading(false); return }
       const [insRes, anomRes, soilRes] = await Promise.all([
         fetch(`${API}/api/v1/memory/insights`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(MEMORY_API_PAYLOAD),
+          body: JSON.stringify({ farm_profile: farmProfile, crop_history: cropHistory, soil_readings: soilReadings }),
         }),
         fetch(`${API}/api/v1/memory/anomaly-check`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ crop_history: MEMORY_API_PAYLOAD.crop_history, soil_readings: MEMORY_API_PAYLOAD.soil_readings }),
+          body: JSON.stringify({ crop_history: cropHistory, soil_readings: soilReadings }),
         }),
         fetch(`${API}/api/v1/memory/soil-analysis?nitrogen=${lastSoil.nitrogen}&phosphorus=${lastSoil.phosphorus}&potassium=${lastSoil.potassium}&ph=${lastSoil.ph}&organic_carbon=${lastSoil.organic_carbon}`),
       ])
       setInsightData((await insRes.json()).data || null)
       setAnomalyData(await anomRes.json() || null)
       setSoilApiData(await soilRes.json() || null)
-    } catch (e) {
-      console.error('Farm Memory API error:', e)
-    }
+    } catch (e) { console.error('AI API error:', e) }
     setLoading(false)
-  }, [])
+  }, [soilReadings, cropHistory, farmProfile])
 
-  useEffect(() => { loadAll() }, [loadAll])
+  useEffect(() => { loadPersistentData() }, [loadPersistentData])
+  useEffect(() => { if (soilReadings.length > 0) loadAiData() }, [soilReadings.length])
 
+  // ── Computed stats ─────────────────────────────────────────────
   const totalRev   = cropHistory.reduce((a, c) => a + c.revenue_inr, 0)
   const totalCost  = cropHistory.reduce((a, c) => a + c.input_cost_inr, 0)
   const netProfit  = totalRev - totalCost
   const totalYield = cropHistory.reduce((a, c) => a + c.yield_tons, 0)
-  const avgRating  = (cropHistory.reduce((a, c) => a + c.ai_outcome_rating, 0) / cropHistory.length).toFixed(1)
-  const lastSoil   = SOIL_READINGS[SOIL_READINGS.length - 1]
+  const avgRating  = cropHistory.length ? (cropHistory.reduce((a, c) => a + c.ai_outcome_rating, 0) / cropHistory.length).toFixed(1) : '—'
+  const lastSoil   = soilReadings[soilReadings.length - 1] || {}
 
-  const handleAddCycle = (newCycle) => {
+  // ── CRUD Handlers ──────────────────────────────────────────────
+  const handleAddCycle = async (newCycle) => {
+    await apiPost('crop-history', newCycle)
     setCropHistory(prev => [newCycle, ...prev])
+    showToast('✅ Crop cycle saved permanently!')
   }
 
-  const handleFbRate = (id, helpful) => {
-    setFbRatings(prev => ({ ...prev, [id]: helpful }))
+  const handleDeleteCycle = async (id) => {
+    if (!confirm('Delete this crop cycle?')) return
+    await apiDel('crop-history', id)
+    setCropHistory(prev => prev.filter(c => c.id !== id))
+    showToast('🗑️ Crop cycle deleted.')
+  }
+
+  const handleSaveProfile = async (updated) => {
+    await apiPut('farm-profile', updated)
+    setFarmProfile(updated)
+    setShowProfileEdit(false)
+    showToast('✅ Farm profile updated!')
+  }
+
+  const handleAddSoil = async (entry) => {
+    const item = { id: `SR-${Date.now()}`, ...entry }
+    await apiPost('soil-readings', item)
+    setSoilReadings(prev => [...prev, item])
+    setShowAddSoil(false)
+    showToast('✅ Soil reading saved!')
+  }
+
+  const handleAddIrrig = async (entry) => {
+    const item = { id: `IR-${Date.now()}`, ...entry }
+    await apiPost('irrigation-events', item)
+    setIrrigEvents(prev => [item, ...prev])
+    setShowAddIrrig(false)
+    showToast('✅ Irrigation event saved!')
+  }
+
+  const handleAddDisease = async (entry) => {
+    const item = { id: `D-${Date.now()}`, ...entry, resolved: false }
+    await apiPost('disease-history', item)
+    setDiseaseHist(prev => [item, ...prev])
+    setShowAddDisease(false)
+    showToast('✅ Disease incident recorded!')
+  }
+
+  const handleToggleResolved = async (id) => {
+    const item = diseaseHist.find(d => d.id === id)
+    const updated = { ...item, resolved: !item.resolved }
+    await apiPut('disease-history', updated)
+    setDiseaseHist(prev => prev.map(d => d.id === id ? updated : d))
+  }
+
+  const handleDeleteDisease = async (id) => {
+    await apiDel('disease-history', id)
+    setDiseaseHist(prev => prev.filter(d => d.id !== id))
+    showToast('🗑️ Record deleted.')
+  }
+
+  const handleAddWeather = async (entry) => {
+    const item = { id: `WH-${Date.now()}`, ...entry }
+    await apiPost('weather-history', item)
+    setWeatherHist(prev => [item, ...prev])
+    setShowAddWeather(false)
+    showToast('✅ Weather record saved!')
+  }
+
+  const handleFbRate = async (id, helpful) => {
+    const item = feedbackLog.find(f => f.id === id)
+    const updated = { ...item, helpful }
+    await apiPut('feedback-log', updated)
+    setFeedbackLog(prev => prev.map(f => f.id === id ? updated : f))
   }
 
   function renderTab() {
@@ -114,7 +224,7 @@ export default function FarmMemoryPage() {
       case 'overview': return (
         <div className="space-y-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard title="Crop Cycles Logged"  value={cropHistory.length}           subtext={`Since ${FARM_PROFILE.established_year}`} icon={History}  colorClass="bg-green-100 text-green-600" />
+            <StatCard title="Crop Cycles Logged"  value={cropHistory.length}           subtext={`Since ${farmProfile?.established_year || '...'}`} icon={History}  colorClass="bg-green-100 text-green-600" />
             <StatCard title="Total Yield"          value={`${totalYield} t`}            subtext="Across all seasons"                        icon={Sprout}   colorClass="bg-blue-100 text-blue-600" />
             <StatCard title="Net Farm Profit"      value={`₹${(netProfit/100000).toFixed(1)}L`} subtext="All recorded cycles"              icon={Star}     colorClass="bg-yellow-100 text-yellow-600" />
             <StatCard title="AI Outcome Avg"       value={`${avgRating}/5`}             subtext="Farmer-rated AI accuracy"                 icon={Brain}    colorClass="bg-purple-100 text-purple-600" />
@@ -126,31 +236,39 @@ export default function FarmMemoryPage() {
             </div>
           </div>
           <div>
-            <SectionHeading icon={MapPin} title="Farm Identity Profile" subtitle="Static parameters that anchor all AI decisions" />
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[
-                  { label: 'Farmer', val: FARM_PROFILE.farmer_name },
-                  { label: 'Farm ID', val: FARM_PROFILE.farm_id },
-                  { label: 'Location', val: FARM_PROFILE.location },
-                  { label: 'Farm Size', val: `${FARM_PROFILE.size_ha} Hectares` },
-                  { label: 'Soil Type', val: FARM_PROFILE.soil_type },
-                  { label: 'Irrigation', val: FARM_PROFILE.irrigation },
-                  { label: 'Since', val: FARM_PROFILE.established_year },
-                  { label: 'Preferred Crops', val: FARM_PROFILE.preferred_crops.join(', ') },
-                ].map(r => (
-                  <div key={r.label}>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{r.label}</p>
-                    <p className="text-sm font-semibold text-slate-800 mt-1">{r.val}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-3 mt-5 pt-4 border-t border-slate-100">
-                {FARM_PROFILE.pmkisan_enrolled && <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">✓ PM-KISAN Enrolled</span>}
-                {FARM_PROFILE.fasal_bima && <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">✓ Fasal Bima Active</span>}
-                <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold">{FARM_PROFILE.bank}</span>
-              </div>
+            <div className="flex justify-between items-center mb-5">
+              <SectionHeading icon={MapPin} title="Farm Identity Profile" subtitle="Editable — anchors all AI decisions" />
+              <button onClick={() => setShowProfileEdit(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">
+                <Pencil size={13}/> Edit Profile
+              </button>
             </div>
+            {farmProfile ? (
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    { label: 'Farmer', val: farmProfile.farmer_name },
+                    { label: 'Farm ID', val: farmProfile.farm_id },
+                    { label: 'Location', val: farmProfile.location },
+                    { label: 'Farm Size', val: `${farmProfile.size_ha} Hectares` },
+                    { label: 'Soil Type', val: farmProfile.soil_type },
+                    { label: 'Irrigation', val: farmProfile.irrigation },
+                    { label: 'Since', val: farmProfile.established_year },
+                    { label: 'Preferred Crops', val: Array.isArray(farmProfile.preferred_crops) ? farmProfile.preferred_crops.join(', ') : farmProfile.preferred_crops },
+                  ].map(r => (
+                    <div key={r.label}>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{r.label}</p>
+                      <p className="text-sm font-semibold text-slate-800 mt-1">{r.val}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3 mt-5 pt-4 border-t border-slate-100">
+                  {farmProfile.pmkisan_enrolled && <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">✓ PM-KISAN Enrolled</span>}
+                  {farmProfile.fasal_bima && <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">✓ Fasal Bima Active</span>}
+                  <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold">{farmProfile.bank}</span>
+                </div>
+              </div>
+            ) : <div className="animate-pulse bg-slate-100 rounded-2xl h-40" />}
           </div>
         </div>
       )
@@ -220,7 +338,15 @@ export default function FarmMemoryPage() {
           </div>
           <SectionHeading icon={History} title="Full Crop Lifecycle Log" subtitle="Sowing → Harvest → Market — complete traceability of every cycle" />
           <div className="relative border-l-2 border-green-200 ml-4 pl-8 space-y-8 pb-4">
-            {cropHistory.map((cycle, i) => <CropTimelineCard key={cycle.id} cycle={cycle} idx={i} />)}
+            {cropHistory.map((cycle, i) => (
+              <div key={cycle.id} className="relative">
+                <button onClick={() => handleDeleteCycle(cycle.id)}
+                  className="absolute top-4 right-4 z-10 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors" title="Delete">
+                  <Trash2 size={13}/>
+                </button>
+                <CropTimelineCard cycle={cycle} idx={i} />
+              </div>
+            ))}
           </div>
           {showAddForm && <AddCropForm onAdd={handleAddCycle} onClose={() => setShowAddForm(false)} />}
         </div>
@@ -350,6 +476,12 @@ export default function FarmMemoryPage() {
       // ── SOIL MEMORY ───────────────────────────────────────────
       case 'soil': return loading ? <Spinner /> : (
         <div className="space-y-6">
+          <div className="flex justify-end">
+            <button onClick={() => setShowAddSoil(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors">
+              <Plus size={16}/> Add Soil Reading
+            </button>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center">
               <p className="text-xs uppercase font-bold text-slate-400 tracking-wide mb-3">AI Soil Health Score</p>
@@ -378,10 +510,10 @@ export default function FarmMemoryPage() {
             </div>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
               <h4 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide">Current Nutrient Status</h4>
-              <NutrientBar label="Nitrogen (N)"   value={lastSoil.nitrogen}   optimal_min={60}  optimal_max={160} unit="kg/ha" />
-              <NutrientBar label="Phosphorus (P)" value={lastSoil.phosphorus} optimal_min={35}  optimal_max={100} unit="kg/ha" />
-              <NutrientBar label="Potassium (K)"  value={lastSoil.potassium}  optimal_min={35}  optimal_max={150} unit="kg/ha" />
-              <NutrientBar label="pH"             value={lastSoil.ph}         optimal_min={6.0} optimal_max={7.5} unit="" />
+              <NutrientBar label="Nitrogen (N)"   value={lastSoil.nitrogen||0}   optimal_min={60}  optimal_max={160} unit="kg/ha" />
+              <NutrientBar label="Phosphorus (P)" value={lastSoil.phosphorus||0} optimal_min={35}  optimal_max={100} unit="kg/ha" />
+              <NutrientBar label="Potassium (K)"  value={lastSoil.potassium||0}  optimal_min={35}  optimal_max={150} unit="kg/ha" />
+              <NutrientBar label="pH"             value={lastSoil.ph||7}         optimal_min={6.0} optimal_max={7.5} unit="" />
             </div>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3">
               <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wide mb-2">Deficiencies Found</h4>
@@ -439,9 +571,15 @@ export default function FarmMemoryPage() {
               { t: 'Water Efficiency', v: '3.8 kg/L', s: 'Top 10% regionally' },
             ].map((s,i)=><StatCard key={i} title={s.t} value={s.v} subtext={s.s} icon={Droplet} colorClass="bg-cyan-100 text-cyan-600"/>)}
           </div>
+          <div className="flex justify-end mb-2">
+            <button onClick={() => setShowAddIrrig(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white rounded-xl font-bold text-sm hover:bg-cyan-700 transition-colors">
+              <Plus size={16}/> Log Irrigation Event
+            </button>
+          </div>
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <SectionHeading icon={Droplet} title="Recent Irrigation Events" subtitle="Last 7 days of irrigation activity across all zones" />
-            {IRRIGATION_EVENTS.map((ev, i) => <IrrigationRow key={i} ev={ev} idx={i}/>)}
+            <SectionHeading icon={Droplet} title="Recent Irrigation Events" subtitle="Last recorded irrigation activity across all zones" />
+            {irrigEvents.map((ev, i) => <IrrigationRow key={ev.id || i} ev={ev} idx={i}/>)}
           </div>
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
             <SectionHeading icon={Activity} title="Water Usage by Crop Season" />
@@ -472,15 +610,32 @@ export default function FarmMemoryPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { t: 'Total Incidents', v: DISEASE_HISTORY.length, s: 'All seasons' },
-              { t: 'Active Issues', v: DISEASE_HISTORY.filter(d=>!d.resolved).length, s: 'Requires attention' },
-              { t: 'Resolved', v: DISEASE_HISTORY.filter(d=>d.resolved).length, s: 'Successfully treated' },
-              { t: 'Treatment Cost', v: `₹${DISEASE_HISTORY.reduce((a,d)=>a+d.chemical_cost,0).toLocaleString()}`, s: 'Total chemicals spent' },
+              { t: 'Total Incidents', v: diseaseHist.length, s: 'All seasons' },
+              { t: 'Active Issues', v: diseaseHist.filter(d=>!d.resolved).length, s: 'Requires attention' },
+              { t: 'Resolved', v: diseaseHist.filter(d=>d.resolved).length, s: 'Successfully treated' },
+              { t: 'Treatment Cost', v: `₹${diseaseHist.reduce((a,d)=>a+(d.chemical_cost||0),0).toLocaleString()}`, s: 'Total chemicals spent' },
             ].map((s,i)=><StatCard key={i} title={s.t} value={s.v} subtext={s.s} icon={AlertTriangle} colorClass="bg-red-100 text-red-600"/>)}
+          </div>
+          <div className="flex justify-end">
+            <button onClick={() => setShowAddDisease(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors">
+              <Plus size={16}/> Log Disease Incident
+            </button>
           </div>
           <SectionHeading icon={AlertTriangle} title="Pest & Disease Timeline" subtitle="Every recorded infestation, disease incident, and corrective action across all seasons" />
           <div className="grid md:grid-cols-2 gap-5">
-            {DISEASE_HISTORY.map((d, i) => <DiseaseCard key={d.id} d={d} idx={i}/>)}
+            {diseaseHist.map((d, i) => (
+              <div key={d.id} className="relative">
+                <div className="absolute top-3 right-3 z-10 flex gap-1">
+                  <button onClick={() => handleToggleResolved(d.id)}
+                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-colors ${d.resolved ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+                    {d.resolved ? 'Reopen' : '✓ Resolve'}
+                  </button>
+                  <button onClick={() => handleDeleteDisease(d.id)} className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"><Trash2 size={12}/></button>
+                </div>
+                <DiseaseCard d={d} idx={i}/>
+              </div>
+            ))}
           </div>
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
             <h4 className="font-bold text-slate-800 mb-4">Disease Frequency by Crop</h4>
@@ -500,8 +655,14 @@ export default function FarmMemoryPage() {
       case 'weather': return (
         <div className="space-y-6">
           <SectionHeading icon={Wind} title="Seasonal Weather History" subtitle="Climate conditions recorded per season — used by AI to calibrate recommendations" />
+          <div className="flex justify-end">
+            <button onClick={() => setShowAddWeather(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors">
+              <Plus size={16}/> Add Weather Record
+            </button>
+          </div>
           <div className="grid md:grid-cols-2 gap-5">
-            {WEATHER_HISTORY.map((w,i) => (
+            {weatherHist.map((w,i) => (
               <motion.div key={i} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:i*0.08}}
                 className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <div className="flex justify-between items-start mb-3">
@@ -566,7 +727,7 @@ export default function FarmMemoryPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
               <SectionHeading icon={Cpu} title="IoT Sensor Stream" subtitle="Short-term memory — last 7 days of field readings" />
-              <div>{IOT_EVENTS.map((ev, i) => <IotEventRow key={i} ev={ev} idx={i}/>)}</div>
+              <div>{iotEvents.map((ev, i) => <IotEventRow key={ev.id||i} ev={ev} idx={i}/>)}</div>
             </div>
             <div>
               <SectionHeading icon={MessageCircle} title="Voice & App Interaction Log" subtitle="Every query linked to context and outcome" />
@@ -630,12 +791,12 @@ export default function FarmMemoryPage() {
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>{['Date','Recommendation','Rating','Followed','Actual Outcome','Rate AI'].map(h=><th key={h} className="p-3 text-left font-semibold">{h}</th>)}</tr>
                 </thead>
-                <tbody>{FEEDBACK_LOG.map((fb,i)=><FeedbackRow key={fb.id} fb={fb} idx={i} onRate={handleFbRate}/>)}</tbody>
+                <tbody>{feedbackLog.map((fb,i)=><FeedbackRow key={fb.id} fb={fb} idx={i} onRate={handleFbRate}/>)}</tbody>
               </table>
             </div>
-            {Object.keys(fbRatings).length > 0 && (
+            {feedbackLog.filter(f => f.helpful !== null && f.helpful !== undefined).length > 0 && (
               <div className="p-4 bg-purple-50 border-t border-purple-100 text-sm text-purple-700 font-medium">
-                ✓ {Object.keys(fbRatings).length} rating(s) submitted — AI reinforcement model updated.
+                ✓ {feedbackLog.filter(f=>f.helpful !== null && f.helpful !== undefined).length} rating(s) saved to memory.
               </div>
             )}
           </div>
@@ -645,8 +806,8 @@ export default function FarmMemoryPage() {
       // ── MEMORY Q&A ────────────────────────────────────────────
       case 'qa': return (
         <div className="space-y-6">
-          <SectionHeading icon={Brain} title="Context-Aware Memory Q&A" subtitle="Ask natural-language questions about your farm history — SmartFarm AI retrieves answers from memory" />
-          <MemoryQA examples={MEMORY_QA_EXAMPLES} cropHistory={cropHistory} irrigationEvents={IRRIGATION_EVENTS} diseaseHistory={DISEASE_HISTORY}/>
+          <SectionHeading icon={Brain} title="Context-Aware Memory Q&A" subtitle="Ask natural-language questions about your farm history" />
+          <MemoryQA examples={MEMORY_QA_EXAMPLES} cropHistory={cropHistory} irrigationEvents={irrigEvents} diseaseHistory={diseaseHist}/>
         </div>
       )
 
@@ -744,10 +905,10 @@ export default function FarmMemoryPage() {
           <p className="text-slate-300 text-sm leading-relaxed max-w-2xl mb-6">A persistent, evolving intelligence system that stores, learns from, and personalises every crop cycle, soil test, sensor reading, and AI interaction.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/10 rounded-2xl p-5 border border-white/10 backdrop-blur-sm">
             {[
-              { label: 'Farmer', val: FARM_PROFILE.farmer_name },
-              { label: 'Location', val: FARM_PROFILE.location },
-              { label: 'Farm Size', val: `${FARM_PROFILE.size_ha} ha` },
-              { label: 'Events Logged', val: `${IOT_EVENTS.length + INTERACTION_LOG.length + FEEDBACK_LOG.length + DISEASE_HISTORY.length} events` },
+              { label: 'Farmer', val: farmProfile?.farmer_name || '...' },
+              { label: 'Location', val: farmProfile?.location || '...' },
+              { label: 'Farm Size', val: farmProfile ? `${farmProfile.size_ha} ha` : '...' },
+              { label: 'Records Stored', val: `${iotEvents.length + INTERACTION_LOG.length + feedbackLog.length + diseaseHist.length} entries` },
             ].map(s => (
               <div key={s.label}>
                 <p className="text-xs text-slate-400 uppercase tracking-wide">{s.label}</p>
@@ -768,7 +929,7 @@ export default function FarmMemoryPage() {
             <t.icon size={14}/>{t.label}
           </button>
         ))}
-        <button onClick={loadAll} className="ml-auto flex items-center gap-1 px-3 py-2 text-xs text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0">
+        <button onClick={loadPersistentData} className="ml-auto flex items-center gap-1 px-3 py-2 text-xs text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0">
           <RefreshCw size={13}/> Refresh
         </button>
       </div>
@@ -779,6 +940,155 @@ export default function FarmMemoryPage() {
           {renderTab()}
         </motion.div>
       </AnimatePresence>
+
+      {/* TOAST */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} exit={{opacity:0,y:30}}
+            className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-semibold">
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* EDIT FARM PROFILE MODAL */}
+      {showProfileEdit && farmProfile && <EditProfileModal profile={farmProfile} onSave={handleSaveProfile} onClose={() => setShowProfileEdit(false)} />}
+
+      {/* ADD SOIL READING MODAL */}
+      {showAddSoil && <SimpleModal title="Add Soil Reading" color="emerald" onClose={() => setShowAddSoil(false)}
+        onSubmit={handleAddSoil}
+        fields={[
+          {k:'date',label:'Test Date',type:'date'},{k:'nitrogen',label:'Nitrogen (kg/ha)',type:'number'},
+          {k:'phosphorus',label:'Phosphorus (kg/ha)',type:'number'},{k:'potassium',label:'Potassium (kg/ha)',type:'number'},
+          {k:'ph',label:'pH',type:'number'},{k:'organic_carbon',label:'Organic Carbon (%)',type:'number'},{k:'ec',label:'EC (dS/m)',type:'number'},
+        ]} />}
+
+      {/* ADD IRRIGATION EVENT MODAL */}
+      {showAddIrrig && <SimpleModal title="Log Irrigation Event" color="cyan" onClose={() => setShowAddIrrig(false)}
+        onSubmit={handleAddIrrig}
+        fields={[
+          {k:'date',label:'Date',type:'date'},{k:'zone',label:'Zone / Area',type:'text'},
+          {k:'method',label:'Method (Drip/Flood)',type:'text'},{k:'duration_hrs',label:'Duration (hours)',type:'number'},
+          {k:'water_kl',label:'Water Used (kL)',type:'number'},{k:'stage',label:'Crop Stage',type:'text'},
+        ]} />}
+
+      {/* ADD DISEASE INCIDENT MODAL */}
+      {showAddDisease && <SimpleModal title="Log Disease Incident" color="red" onClose={() => setShowAddDisease(false)}
+        onSubmit={handleAddDisease}
+        fields={[
+          {k:'date',label:'Date',type:'date'},{k:'crop',label:'Crop',type:'text'},
+          {k:'disease',label:'Disease / Pest',type:'text'},
+          {k:'severity',label:'Severity (Low/Medium/High)',type:'text'},
+          {k:'zone',label:'Zone / Block',type:'text'},{k:'action_taken',label:'Action Taken',type:'text'},
+          {k:'chemical_cost',label:'Treatment Cost (₹)',type:'number'},
+        ]} />}
+
+      {/* ADD WEATHER RECORD MODAL */}
+      {showAddWeather && <SimpleModal title="Add Weather Record" color="blue" onClose={() => setShowAddWeather(false)}
+        onSubmit={handleAddWeather}
+        fields={[
+          {k:'season',label:'Season Name',type:'text'},{k:'period',label:'Period (e.g. Jun–Oct 2025)',type:'text'},
+          {k:'avg_temp',label:'Avg Temp (°C)',type:'number'},{k:'rainfall_mm',label:'Rainfall (mm)',type:'number'},
+          {k:'humidity_pct',label:'Humidity (%)',type:'number'},{k:'frost_days',label:'Frost Days',type:'number'},
+          {k:'notable',label:'Notable Observations',type:'text'},
+        ]} />}
+    </div>
+  )
+}
+
+// ── Reusable Simple Modal Form ─────────────────────────────────
+function SimpleModal({ title, color, fields, onSubmit, onClose }) {
+  const colors = { emerald:'bg-emerald-600', cyan:'bg-cyan-600', red:'bg-red-600', blue:'bg-blue-600' }
+  const borders = { emerald:'focus:border-emerald-500', cyan:'focus:border-cyan-500', red:'focus:border-red-500', blue:'focus:border-blue-500' }
+  const [form, setForm] = useState(() => Object.fromEntries(fields.map(f => [f.k, ''])))
+  const set = (k, v) => setForm(p => ({...p, [k]: v}))
+  const handleSubmit = () => {
+    const parsed = {}
+    fields.forEach(f => { parsed[f.k] = f.type === 'number' ? (parseFloat(form[f.k]) || 0) : form[f.k] })
+    onSubmit(parsed)
+  }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <motion.div initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}}
+        className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+        <div className={`p-5 ${colors[color]} text-white flex justify-between items-center`}>
+          <h2 className="text-lg font-black">{title}</h2>
+          <button onClick={onClose} className="text-white/70 hover:text-white text-xl font-bold">✕</button>
+        </div>
+        <div className="p-5 grid grid-cols-2 gap-3">
+          {fields.map(f => (
+            <div key={f.k} className={f.k === 'notable' || f.k === 'action_taken' ? 'col-span-2' : ''}>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{f.label}</label>
+              <input type={f.type} value={form[f.k]} onChange={e => set(f.k, e.target.value)}
+                className={`w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:outline-none bg-white ${borders[color]}`}/>
+            </div>
+          ))}
+        </div>
+        <div className="p-5 pt-0 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200">Cancel</button>
+          <button onClick={handleSubmit} className={`flex-1 py-3 rounded-xl font-bold text-sm text-white shadow-lg ${colors[color]}`}>
+            <Save size={14} className="inline mr-1"/>Save Record
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ── Edit Farm Profile Modal ─────────────────────────────────────
+function EditProfileModal({ profile, onSave, onClose }) {
+  const [form, setForm] = useState({...profile, preferred_crops: Array.isArray(profile.preferred_crops) ? profile.preferred_crops.join(', ') : profile.preferred_crops})
+  const set = (k, v) => setForm(p => ({...p, [k]: v}))
+  const handleSave = () => {
+    onSave({ ...form, size_ha: parseFloat(form.size_ha)||form.size_ha, preferred_crops: form.preferred_crops.split(',').map(s=>s.trim()) })
+  }
+  const F = ({label, k, type='text'}) => (
+    <div>
+      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+      <input type={type} value={form[k]||''} onChange={e=>set(k,e.target.value)}
+        className="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none bg-white"/>
+    </div>
+  )
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <motion.div initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}}
+        className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="p-6 bg-emerald-600 text-white flex justify-between items-center">
+          <div><h2 className="text-xl font-black">Edit Farm Profile</h2><p className="text-emerald-100 text-sm mt-0.5">All changes are saved permanently</p></div>
+          <button onClick={onClose} className="text-white/70 hover:text-white text-2xl font-bold">✕</button>
+        </div>
+        <div className="p-6 grid grid-cols-2 gap-4">
+          <F label="Farmer Name" k="farmer_name"/>
+          <F label="Farm Name" k="farm_name"/>
+          <F label="Location" k="location"/>
+          <F label="State" k="state"/>
+          <F label="Farm Size (ha)" k="size_ha" type="number"/>
+          <F label="Soil Type" k="soil_type"/>
+          <F label="Irrigation Setup" k="irrigation"/>
+          <F label="Bank" k="bank"/>
+          <F label="Phone" k="phone"/>
+          <F label="Established Year" k="established_year" type="number"/>
+          <div className="col-span-2">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Preferred Crops (comma-separated)</label>
+            <input value={form.preferred_crops||''} onChange={e=>set('preferred_crops',e.target.value)}
+              className="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none bg-white"/>
+          </div>
+          <div className="flex items-center gap-3">
+            <input type="checkbox" id="pmkisan" checked={!!form.pmkisan_enrolled} onChange={e=>set('pmkisan_enrolled',e.target.checked)} className="w-4 h-4"/>
+            <label htmlFor="pmkisan" className="text-sm font-semibold text-slate-700">PM-KISAN Enrolled</label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input type="checkbox" id="fasal" checked={!!form.fasal_bima} onChange={e=>set('fasal_bima',e.target.checked)} className="w-4 h-4"/>
+            <label htmlFor="fasal" className="text-sm font-semibold text-slate-700">Fasal Bima Active</label>
+          </div>
+        </div>
+        <div className="p-6 pt-0 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200">Cancel</button>
+          <button onClick={handleSave} className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg">
+            <Save size={14} className="inline mr-1"/>Save Profile
+          </button>
+        </div>
+      </motion.div>
     </div>
   )
 }
