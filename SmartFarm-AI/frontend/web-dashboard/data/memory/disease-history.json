@@ -1,0 +1,57 @@
+[
+  {
+    "id": "D-001",
+    "date": "2025-04-02",
+    "crop": "Onion (Current)",
+    "disease": "Purple Blotch",
+    "severity": "Medium",
+    "zone": "Block C",
+    "action_taken": "Mancozeb 75% @ 2.5g/L sprayed",
+    "resolved": false,
+    "chemical_cost": 640
+  },
+  {
+    "id": "D-002",
+    "date": "2025-03-15",
+    "crop": "Onion (Current)",
+    "disease": "Thrips Infestation",
+    "severity": "High",
+    "zone": "Block A & B",
+    "action_taken": "Fipronil 5% SC applied. Sticky traps deployed.",
+    "resolved": true,
+    "chemical_cost": 980
+  },
+  {
+    "id": "D-003",
+    "date": "2024-08-25",
+    "crop": "Tomato",
+    "disease": "Early Blight",
+    "severity": "Medium",
+    "zone": "Block D",
+    "action_taken": "Chlorothalonil spray + removed infected lower leaves",
+    "resolved": true,
+    "chemical_cost": 520
+  },
+  {
+    "id": "D-004",
+    "date": "2024-07-10",
+    "crop": "Tomato",
+    "disease": "Spider Mites",
+    "severity": "Low",
+    "zone": "Block D",
+    "action_taken": "Abamectin 1.9% EC applied",
+    "resolved": true,
+    "chemical_cost": 720
+  },
+  {
+    "id": "D-005",
+    "date": "2022-08-12",
+    "crop": "Soybean",
+    "disease": "Yellow Mosaic Virus",
+    "severity": "High",
+    "zone": "Field 1",
+    "action_taken": "Infected plants uprooted. No chemical. Yield loss ~18%.",
+    "resolved": true,
+    "chemical_cost": 0
+  }
+]

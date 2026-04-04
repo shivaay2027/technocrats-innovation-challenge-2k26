@@ -1,0 +1,50 @@
+[
+  {
+    "id": "IOT-001",
+    "ts": "2025-04-03T18:00",
+    "type": "soil_moisture",
+    "value": "38%",
+    "zone": "Zone A",
+    "status": "normal"
+  },
+  {
+    "id": "IOT-002",
+    "ts": "2025-04-03T18:00",
+    "type": "temperature",
+    "value": "31°C",
+    "zone": "Ambient",
+    "status": "normal"
+  },
+  {
+    "id": "IOT-003",
+    "ts": "2025-04-03T06:00",
+    "type": "irrigation",
+    "value": "2.4L/plant",
+    "zone": "Zone B",
+    "status": "completed"
+  },
+  {
+    "id": "IOT-004",
+    "ts": "2025-04-02T14:30",
+    "type": "pest_trap",
+    "value": "12 pests/trap",
+    "zone": "Block C",
+    "status": "alert"
+  },
+  {
+    "id": "IOT-005",
+    "ts": "2025-04-02T08:00",
+    "type": "soil_moisture",
+    "value": "29%",
+    "zone": "Zone C",
+    "status": "low"
+  },
+  {
+    "id": "IOT-006",
+    "ts": "2025-04-01T18:00",
+    "type": "rainfall",
+    "value": "0mm",
+    "zone": "Farm",
+    "status": "dry"
+  }
+]

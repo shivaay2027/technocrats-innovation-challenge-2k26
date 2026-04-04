@@ -1,0 +1,42 @@
+[
+  {
+    "id": "SR-001",
+    "date": "2022-04-10",
+    "nitrogen": 62,
+    "phosphorus": 34,
+    "potassium": 50,
+    "ph": 6.7,
+    "organic_carbon": 0.68,
+    "ec": 0.42
+  },
+  {
+    "id": "SR-002",
+    "date": "2023-05-10",
+    "nitrogen": 55,
+    "phosphorus": 30,
+    "potassium": 45,
+    "ph": 6.8,
+    "organic_carbon": 0.6,
+    "ec": 0.45
+  },
+  {
+    "id": "SR-003",
+    "date": "2024-05-12",
+    "nitrogen": 48,
+    "phosphorus": 28,
+    "potassium": 40,
+    "ph": 6.9,
+    "organic_carbon": 0.51,
+    "ec": 0.5
+  },
+  {
+    "id": "SR-004",
+    "date": "2025-01-20",
+    "nitrogen": 42,
+    "phosphorus": 25,
+    "potassium": 38,
+    "ph": 7.1,
+    "organic_carbon": 0.45,
+    "ec": 0.54
+  }
+]

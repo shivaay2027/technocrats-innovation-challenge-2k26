@@ -1,0 +1,24 @@
+{
+  "farmer_name": "Ramesh Kumar",
+  "farm_name": "Ramesh Family Farms",
+  "location": "Nashik, Maharashtra",
+  "state": "Maharashtra",
+  "lat": 20.011,
+  "lng": 73.76,
+  "size_ha": 12,
+  "soil_type": "Black Cotton Soil",
+  "irrigation": "Drip + Flood",
+  "preferred_crops": [
+    "Tomato",
+    "Onion",
+    "Wheat",
+    "Soybean"
+  ],
+  "established_year": 2012,
+  "farm_id": "FARM-MH-2012-0047",
+  "phone": "+91-98765-43210",
+  "aadhaar_masked": "XXXX-XXXX-4321",
+  "bank": "Bank of Maharashtra",
+  "pmkisan_enrolled": true,
+  "fasal_bima": true
+}

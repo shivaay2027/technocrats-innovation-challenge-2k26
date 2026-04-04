@@ -531,7 +531,7 @@ export default function FarmMemoryPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide"><tr>{['Test Date','N (kg/ha)','P (kg/ha)','K (kg/ha)','pH','Org. Carbon','EC'].map(h => <th key={h} className="p-3 text-left font-semibold">{h}</th>)}</tr></thead>
-                <tbody>{SOIL_READINGS.map((r, i) => (
+                <tbody>{soilReadings.map((r, i) => (
                   <tr key={i} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="p-3 font-medium text-slate-700">{r.date}</td>
                     <td className="p-3 font-semibold text-slate-800">{r.nitrogen}</td>
@@ -567,7 +567,7 @@ export default function FarmMemoryPage() {
             {[
               { t: 'Total Water Used', v: `${cropHistory.reduce((a,c)=>a+(c.water_used_kl||0),0)} kL`, s: 'All seasons combined' },
               { t: 'Avg per Season', v: `${Math.round(cropHistory.reduce((a,c)=>a+(c.water_used_kl||0),0)/cropHistory.length)} kL`, s: 'Per crop cycle' },
-              { t: 'Irrigation Events', v: IRRIGATION_EVENTS.length, s: 'Last 7 days' },
+              { t: 'Irrigation Events', v: irrigEvents.length, s: 'Last 7 days' },
               { t: 'Water Efficiency', v: '3.8 kg/L', s: 'Top 10% regionally' },
             ].map((s,i)=><StatCard key={i} title={s.t} value={s.v} subtext={s.s} icon={Droplet} colorClass="bg-cyan-100 text-cyan-600"/>)}
           </div>
@@ -639,7 +639,7 @@ export default function FarmMemoryPage() {
           </div>
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
             <h4 className="font-bold text-slate-800 mb-4">Disease Frequency by Crop</h4>
-            {CROP_HISTORY.map((c,i)=>(
+            {cropHistory.filter(c => c.disease_incidents?.length > 0).map((c,i)=>(
               <div key={i} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
                 <span className="font-semibold text-slate-700 w-24 flex-shrink-0 text-sm">{c.crop}</span>
                 <div className="flex flex-wrap gap-1.5 flex-1">
@@ -768,15 +768,15 @@ export default function FarmMemoryPage() {
               subtitle="Farmer ratings & outcomes are fed back into the AI to improve future recommendations." />
             <div className="grid grid-cols-3 gap-4 mt-2">
               <div className="bg-white rounded-xl p-4 border border-purple-100 text-center shadow-sm">
-                <p className="text-2xl font-bold text-purple-700">{FEEDBACK_LOG.filter(f=>f.followed).length}/{FEEDBACK_LOG.length}</p>
+                <p className="text-2xl font-bold text-purple-700">{feedbackLog.filter(f=>f.followed).length}/{feedbackLog.length}</p>
                 <p className="text-xs text-slate-500 mt-1">Recommendations followed</p>
               </div>
               <div className="bg-white rounded-xl p-4 border border-purple-100 text-center shadow-sm">
-                <p className="text-2xl font-bold text-yellow-600">{(FEEDBACK_LOG.reduce((a,f)=>a+f.rating,0)/FEEDBACK_LOG.length).toFixed(1)}★</p>
+                <p className="text-2xl font-bold text-yellow-600">{feedbackLog.length ? (feedbackLog.reduce((a,f)=>a+(f.rating||0),0)/feedbackLog.length).toFixed(1) : '—'}★</p>
                 <p className="text-xs text-slate-500 mt-1">Average accuracy rating</p>
               </div>
               <div className="bg-white rounded-xl p-4 border border-purple-100 text-center shadow-sm">
-                <p className="text-2xl font-bold text-green-600">{FEEDBACK_LOG.filter(f=>f.rating>=4).length}</p>
+                <p className="text-2xl font-bold text-green-600">{feedbackLog.filter(f=>f.rating>=4).length}</p>
                 <p className="text-xs text-slate-500 mt-1">High-quality predictions</p>
               </div>
             </div>

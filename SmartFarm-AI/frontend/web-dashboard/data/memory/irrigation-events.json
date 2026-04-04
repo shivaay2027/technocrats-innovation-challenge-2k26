@@ -1,0 +1,42 @@
+[
+  {
+    "id": "IR-001",
+    "date": "2025-04-03",
+    "zone": "Zone A (Onion)",
+    "method": "Drip",
+    "duration_hrs": 3.5,
+    "water_kl": 12.4,
+    "stage": "Bulb Development",
+    "status": "completed"
+  },
+  {
+    "id": "IR-002",
+    "date": "2025-04-03",
+    "zone": "Zone B (Wheat)",
+    "method": "Flood",
+    "duration_hrs": 2,
+    "water_kl": 48,
+    "stage": "Grain Fill",
+    "status": "completed"
+  },
+  {
+    "id": "IR-003",
+    "date": "2025-04-02",
+    "zone": "Zone A (Onion)",
+    "method": "Drip",
+    "duration_hrs": 3.5,
+    "water_kl": 12.4,
+    "stage": "Bulb Development",
+    "status": "completed"
+  },
+  {
+    "id": "IR-004",
+    "date": "2025-04-01",
+    "zone": "Zone C (Tomato)",
+    "method": "Drip",
+    "duration_hrs": 4,
+    "water_kl": 9.8,
+    "stage": "Flowering",
+    "status": "completed"
+  }
+]

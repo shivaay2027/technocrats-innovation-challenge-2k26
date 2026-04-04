@@ -1,0 +1,192 @@
+[
+  {
+    "id": "CROP-1775333040626",
+    "crop": "Wheat ",
+    "variety": "1544",
+    "sown_date": "2026-02-02",
+    "harvested_date": "2026-04-05",
+    "area_ha": 34,
+    "yield_tons": 338,
+    "input_cost_inr": 70000,
+    "revenue_inr": 1000000,
+    "season": "Kharif",
+    "market_sold": "Indore APMC",
+    "sale_price_per_q": 2269,
+    "disease_incidents": [],
+    "weather_note": "",
+    "water_used_kl": 9709,
+    "labour_days": 63,
+    "irrigation_method": "Drip",
+    "fertilizer_used": [],
+    "pesticide_used": [],
+    "equipment": [],
+    "market_transactions": [],
+    "ai_outcome_rating": 3
+  },
+  {
+    "id": "CROP-2022-KHARIF",
+    "crop": "Soybean",
+    "variety": "JS-335",
+    "sown_date": "2022-06-20",
+    "harvested_date": "2022-10-05",
+    "area_ha": 8,
+    "yield_tons": 18.4,
+    "input_cost_inr": 96000,
+    "revenue_inr": 185000,
+    "disease_incidents": [
+      "Yellow Mosaic Virus"
+    ],
+    "irrigation_method": "Flood",
+    "market_sold": "Nashik APMC",
+    "sale_price_per_q": 4800,
+    "season": "Kharif",
+    "weather_note": "Below normal rainfall — 620mm vs 780mm avg.",
+    "ai_outcome_rating": 3,
+    "water_used_kl": 420,
+    "labour_days": 58,
+    "fertilizer_used": [
+      {
+        "name": "DAP",
+        "qty": 80,
+        "unit": "kg",
+        "cost": 2400
+      },
+      {
+        "name": "Urea",
+        "qty": 60,
+        "unit": "kg",
+        "cost": 1140
+      }
+    ],
+    "pesticide_used": [
+      {
+        "name": "Imidacloprid",
+        "qty": 200,
+        "unit": "ml",
+        "cost": 320
+      }
+    ],
+    "equipment": [
+      "Tractor (Plough)",
+      "Seed Drill"
+    ],
+    "market_transactions": [
+      {
+        "date": "2022-10-10",
+        "qty_q": 184,
+        "price_q": 4800,
+        "mandi": "Nashik APMC",
+        "net": 883200
+      }
+    ]
+  },
+  {
+    "id": "CROP-2023-RABI",
+    "crop": "Wheat",
+    "variety": "Sharbati GW-322",
+    "sown_date": "2023-11-15",
+    "harvested_date": "2024-03-20",
+    "area_ha": 10,
+    "yield_tons": 45,
+    "input_cost_inr": 120000,
+    "revenue_inr": 250000,
+    "disease_incidents": [
+      "Aphids (Low)"
+    ],
+    "irrigation_method": "Flood",
+    "market_sold": "Malegaon Mandi",
+    "sale_price_per_q": 2275,
+    "season": "Rabi",
+    "weather_note": "Good winter chill — 12°C avg night temp boosted grain fill.",
+    "ai_outcome_rating": 4,
+    "water_used_kl": 680,
+    "labour_days": 72,
+    "fertilizer_used": [
+      {
+        "name": "NPK 12-32-16",
+        "qty": 100,
+        "unit": "kg",
+        "cost": 2800
+      },
+      {
+        "name": "Urea (top-dress)",
+        "qty": 80,
+        "unit": "kg",
+        "cost": 1520
+      }
+    ],
+    "pesticide_used": [
+      {
+        "name": "Chlorpyrifos",
+        "qty": 500,
+        "unit": "ml",
+        "cost": 620
+      }
+    ],
+    "equipment": [
+      "Tractor (Plough)",
+      "Combine Harvester"
+    ],
+    "market_transactions": [
+      {
+        "date": "2024-03-25",
+        "qty_q": 450,
+        "price_q": 2275,
+        "mandi": "Malegaon Mandi",
+        "net": 1023750
+      }
+    ]
+  },
+  {
+    "id": "CROP-2024-RABI",
+    "crop": "Onion",
+    "variety": "Nashik Red (N-2-4-1)",
+    "sown_date": "2024-11-05",
+    "harvested_date": "2025-03-10",
+    "area_ha": 5,
+    "yield_tons": 120,
+    "input_cost_inr": 150000,
+    "revenue_inr": 180000,
+    "disease_incidents": [
+      "Purple Blotch",
+      "Stemphylium Blight"
+    ],
+    "irrigation_method": "Drip",
+    "market_sold": "Lasalgaon APMC",
+    "sale_price_per_q": 620,
+    "season": "Rabi",
+    "weather_note": "Unseasonal rain at harvest raised moisture — price crash at APMC.",
+    "ai_outcome_rating": 2,
+    "water_used_kl": 510,
+    "labour_days": 140,
+    "fertilizer_used": [
+      {
+        "name": "DAP",
+        "qty": 100,
+        "unit": "kg",
+        "cost": 3000
+      }
+    ],
+    "pesticide_used": [
+      {
+        "name": "Mancozeb 75%",
+        "qty": 800,
+        "unit": "g",
+        "cost": 640
+      }
+    ],
+    "equipment": [
+      "Drip System",
+      "Tractor (Ridger)"
+    ],
+    "market_transactions": [
+      {
+        "date": "2025-03-15",
+        "qty_q": 600,
+        "price_q": 620,
+        "mandi": "Lasalgaon APMC",
+        "net": 372000
+      }
+    ]
+  }
+]

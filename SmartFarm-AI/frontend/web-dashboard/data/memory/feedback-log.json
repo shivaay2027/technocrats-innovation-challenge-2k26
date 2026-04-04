@@ -1,0 +1,38 @@
+[
+  {
+    "id": "FB-001",
+    "date": "2024-10-01",
+    "recommendation": "Tomato — Early market sale",
+    "rating": 5,
+    "outcome": "Confirmed — got ₹1,800/q before glut",
+    "followed": true,
+    "helpful": null
+  },
+  {
+    "id": "FB-002",
+    "date": "2024-03-25",
+    "recommendation": "Wheat foliar urea at tillering",
+    "rating": 4,
+    "outcome": "Yield improved by ~8% vs previous season",
+    "followed": true,
+    "helpful": null
+  },
+  {
+    "id": "FB-003",
+    "date": "2023-10-10",
+    "recommendation": "Hold Soybean — price will rise",
+    "rating": 2,
+    "outcome": "Price fell further — farmer sold at loss",
+    "followed": false,
+    "helpful": null
+  },
+  {
+    "id": "FB-004",
+    "date": "2025-02-05",
+    "recommendation": "Spray Mancozeb for Onion blight",
+    "rating": 3,
+    "outcome": "Partially effective — continued disease spread",
+    "followed": true,
+    "helpful": null
+  }
+]
