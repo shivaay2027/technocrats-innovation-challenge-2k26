@@ -39,6 +39,7 @@ const TABS = [
   { id: 'weather',     label: 'Weather History',     icon: Wind },
   { id: 'market',      label: 'Market Ledger',       icon: ShoppingCart },
   { id: 'realtime',    label: 'Live Events',         icon: Cpu },
+  { id: 'activity',    label: 'Activity Feed',       icon: Activity },
   { id: 'anomalies',   label: 'Anomalies',           icon: AlertTriangle },
   { id: 'feedback',    label: 'Feedback Loop',       icon: MessageCircle },
   { id: 'qa',          label: 'Memory Q&A',          icon: Brain },
@@ -83,6 +84,9 @@ export default function FarmMemoryPage() {
   const [showAddIrrig, setShowAddIrrig]       = useState(false)
   const [showAddDisease, setShowAddDisease]   = useState(false)
   const [showAddWeather, setShowAddWeather]   = useState(false)
+  const [showAddIot, setShowAddIot]           = useState(false)
+  const [showAddFeedback, setShowAddFeedback] = useState(false)
+  const [editCycle, setEditCycle]             = useState(null)  // cycle being edited
   const [toast, setToast]                     = useState(null)
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000) }
@@ -217,6 +221,46 @@ export default function FarmMemoryPage() {
     setFeedbackLog(prev => prev.map(f => f.id === id ? updated : f))
   }
 
+  const handleAddIot = async (entry) => {
+    const item = { id: `IOT-${Date.now()}`, ts: entry.ts || new Date().toISOString().slice(0,16), ...entry }
+    await apiPost('iot-events', item)
+    setIotEvents(prev => [item, ...prev])
+    setShowAddIot(false)
+    showToast('✅ Sensor event logged!')
+  }
+
+  const handleAddFeedback = async (entry) => {
+    const item = { id: `FB-${Date.now()}`, date: entry.date || new Date().toISOString().slice(0,10), helpful: null, ...entry, rating: parseInt(entry.rating)||3, followed: entry.followed === 'true' || entry.followed === true }
+    await apiPost('feedback-log', item)
+    setFeedbackLog(prev => [item, ...prev])
+    setShowAddFeedback(false)
+    showToast('✅ Feedback entry saved!')
+  }
+
+  const handleEditCycle = async (updated) => {
+    await apiPut('crop-history', updated)
+    setCropHistory(prev => prev.map(c => c.id === updated.id ? updated : c))
+    setEditCycle(null)
+    showToast('✅ Crop cycle updated!')
+  }
+
+  const handleDeleteSoil = async (id) => {
+    if (!confirm('Delete this soil reading?')) return
+    await apiDel('soil-readings', id)
+    setSoilReadings(prev => prev.filter(r => r.id !== id))
+    showToast('🗑️ Soil reading deleted.')
+  }
+
+  const handleExport = () => {
+    const data = { farmProfile, cropHistory, soilReadings, irrigEvents, diseaseHist, weatherHist, feedbackLog, iotEvents, exportedAt: new Date().toISOString() }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `farm-memory-${farmProfile?.farm_id || 'export'}.json`
+    a.click(); URL.revokeObjectURL(url)
+    showToast('✅ Farm memory exported!')
+  }
+
   function renderTab() {
     switch (tab) {
 
@@ -228,6 +272,12 @@ export default function FarmMemoryPage() {
             <StatCard title="Total Yield"          value={`${totalYield} t`}            subtext="Across all seasons"                        icon={Sprout}   colorClass="bg-blue-100 text-blue-600" />
             <StatCard title="Net Farm Profit"      value={`₹${(netProfit/100000).toFixed(1)}L`} subtext="All recorded cycles"              icon={Star}     colorClass="bg-yellow-100 text-yellow-600" />
             <StatCard title="AI Outcome Avg"       value={`${avgRating}/5`}             subtext="Farmer-rated AI accuracy"                 icon={Brain}    colorClass="bg-purple-100 text-purple-600" />
+          </div>
+          <div className="flex justify-end">
+            <button onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-colors shadow">
+              ↓ Export Farm Memory
+            </button>
           </div>
           <div>
             <SectionHeading icon={Database} title="Memory Architecture" subtitle="How SmartFarm AI builds and stores your farm's intelligence" />
@@ -340,15 +390,22 @@ export default function FarmMemoryPage() {
           <div className="relative border-l-2 border-green-200 ml-4 pl-8 space-y-8 pb-4">
             {cropHistory.map((cycle, i) => (
               <div key={cycle.id} className="relative">
-                <button onClick={() => handleDeleteCycle(cycle.id)}
-                  className="absolute top-4 right-4 z-10 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors" title="Delete">
-                  <Trash2 size={13}/>
-                </button>
+                <div className="absolute top-4 right-4 z-10 flex gap-1">
+                  <button onClick={() => setEditCycle(cycle)}
+                    className="p-1.5 bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors" title="Edit">
+                    <Pencil size={13}/>
+                  </button>
+                  <button onClick={() => handleDeleteCycle(cycle.id)}
+                    className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors" title="Delete">
+                    <Trash2 size={13}/>
+                  </button>
+                </div>
                 <CropTimelineCard cycle={cycle} idx={i} />
               </div>
             ))}
           </div>
           {showAddForm && <AddCropForm onAdd={handleAddCycle} onClose={() => setShowAddForm(false)} />}
+          {editCycle && <AddCropForm editMode initialData={editCycle} onAdd={handleEditCycle} onClose={() => setEditCycle(null)} />}
         </div>
       )
 
@@ -407,6 +464,40 @@ export default function FarmMemoryPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+          <h4 className="font-bold text-slate-800 mb-1 text-sm">Input Cost vs Yield Correlation</h4>
+          <p className="text-xs text-slate-400 mb-4">Higher investment vs actual harvest output — identify your most profitable seasons</p>
+          <div className="space-y-3">
+            {[...cropHistory].sort((a,b) => b.input_cost_inr - a.input_cost_inr).map((c, i) => {
+              const maxRev = Math.max(...cropHistory.map(x => x.revenue_inr))
+              const costPct = (c.input_cost_inr / Math.max(...cropHistory.map(x => x.input_cost_inr))) * 100
+              const revPct  = (c.revenue_inr / maxRev) * 100
+              const roi = ((c.revenue_inr - c.input_cost_inr) / c.input_cost_inr * 100).toFixed(0)
+              return (
+                <div key={c.id} className="p-3 bg-slate-50 rounded-xl">
+                  <div className="flex justify-between items-center text-xs mb-2">
+                    <span className="font-bold text-slate-700">{c.crop} <span className="text-slate-400">({c.season} {c.sown_date?.slice(0,4)})</span></span>
+                    <span className={`font-bold px-2 py-0.5 rounded-full ${parseInt(roi)>0?'bg-green-100 text-green-700':'bg-red-100 text-red-600'}`}>ROI {roi}%</span>
+                  </div>
+                  <div className="flex gap-3 items-center">
+                    <span className="text-xs text-red-500 w-12 font-semibold">Cost</span>
+                    <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                      <motion.div initial={{width:0}} animate={{width:`${costPct}%`}} transition={{duration:0.6,delay:i*0.05}} className="h-full bg-red-400 rounded-full"/>
+                    </div>
+                    <span className="text-xs text-slate-500 w-20 text-right">₹{c.input_cost_inr.toLocaleString()}</span>
+                  </div>
+                  <div className="flex gap-3 items-center mt-1">
+                    <span className="text-xs text-green-600 w-12 font-semibold">Rev</span>
+                    <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                      <motion.div initial={{width:0}} animate={{width:`${revPct}%`}} transition={{duration:0.6,delay:i*0.05+0.1}} className="h-full bg-green-500 rounded-full"/>
+                    </div>
+                    <span className="text-xs text-slate-500 w-20 text-right">₹{c.revenue_inr.toLocaleString()}</span>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )
@@ -482,6 +573,33 @@ export default function FarmMemoryPage() {
               <Plus size={16}/> Add Soil Reading
             </button>
           </div>
+          {/* Soil Depletion Alert */}
+          {soilReadings.length >= 2 && (() => {
+            const first = soilReadings[0], last = soilReadings[soilReadings.length - 1]
+            const nDelta = last.nitrogen - first.nitrogen
+            const pDelta = last.phosphorus - first.phosphorus
+            const kDelta = last.potassium - first.potassium
+            const alerts = [
+              nDelta < -5 && `Nitrogen dropping (${nDelta.toFixed(1)} kg/ha since first test)`,
+              pDelta < -5 && `Phosphorus dropping (${pDelta.toFixed(1)} kg/ha)`,
+              kDelta < -5 && `Potassium dropping (${kDelta.toFixed(1)} kg/ha)`,
+            ].filter(Boolean)
+            return alerts.length > 0 ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
+                <AlertTriangle className="text-amber-500 flex-shrink-0 mt-0.5" size={18}/>
+                <div>
+                  <p className="font-bold text-amber-800 text-sm mb-1">⚠️ Soil Nutrient Depletion Detected</p>
+                  <ul className="space-y-0.5">{alerts.map((a,i) => <li key={i} className="text-xs text-amber-700">{a}</li>)}</ul>
+                  <p className="text-xs text-amber-600 mt-2 font-medium">Consider soil enrichment before next sowing cycle.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex gap-3 items-center">
+                <CheckCircle2 className="text-green-500 flex-shrink-0" size={18}/>
+                <p className="text-sm font-semibold text-green-700">Soil nutrients are stable across all recorded tests.</p>
+              </div>
+            )
+          })()}
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center">
               <p className="text-xs uppercase font-bold text-slate-400 tracking-wide mb-3">AI Soil Health Score</p>
@@ -530,7 +648,7 @@ export default function FarmMemoryPage() {
             <div className="p-5 border-b border-slate-100"><SectionHeading icon={Activity} title="Soil Nutrient Trend" subtitle="AI tracking across all recorded soil tests" /></div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide"><tr>{['Test Date','N (kg/ha)','P (kg/ha)','K (kg/ha)','pH','Org. Carbon','EC'].map(h => <th key={h} className="p-3 text-left font-semibold">{h}</th>)}</tr></thead>
+                <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide"><tr>{['Test Date','N (kg/ha)','P (kg/ha)','K (kg/ha)','pH','Org. Carbon','EC',''].map(h => <th key={h} className="p-3 text-left font-semibold">{h}</th>)}</tr></thead>
                 <tbody>{soilReadings.map((r, i) => (
                   <tr key={i} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="p-3 font-medium text-slate-700">{r.date}</td>
@@ -540,6 +658,9 @@ export default function FarmMemoryPage() {
                     <td className="p-3 text-slate-600">{r.ph}</td>
                     <td className="p-3 text-slate-600">{r.organic_carbon}%</td>
                     <td className="p-3 text-slate-600">{r.ec} dS/m</td>
+                    <td className="p-3">
+                      <button onClick={() => handleDeleteSoil(r.id)} className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete"><Trash2 size={12}/></button>
+                    </td>
                   </tr>
                 ))}</tbody>
               </table>
@@ -608,6 +729,28 @@ export default function FarmMemoryPage() {
       // ── PEST & DISEASE HISTORY ────────────────────────────────
       case 'disease': return (
         <div className="space-y-6">
+          {/* Recurring Pest Pattern Alert */}
+          {(() => {
+            const freq = {}
+            diseaseHist.forEach(d => { freq[d.disease] = (freq[d.disease] || 0) + 1 })
+            const recurring = Object.entries(freq).filter(([,c]) => c > 1).sort((a,b) => b[1]-a[1])
+            return recurring.length > 0 ? (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3">
+                <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={18}/>
+                <div>
+                  <p className="font-bold text-red-800 text-sm mb-1">🔁 Recurring Pest / Disease Patterns Detected</p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {recurring.map(([name, count]) => (
+                      <span key={name} className="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
+                        {name} × {count}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-red-600 mt-2">These issues recur seasonally — consider preventive treatment before sowing.</p>
+                </div>
+              </div>
+            ) : null
+          })()}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { t: 'Total Incidents', v: diseaseHist.length, s: 'All seasons' },
@@ -724,9 +867,15 @@ export default function FarmMemoryPage() {
       // ── LIVE EVENTS ───────────────────────────────────────────
       case 'realtime': return (
         <div className="space-y-6">
+          <div className="flex justify-end">
+            <button onClick={() => setShowAddIot(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-700 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors">
+              <Plus size={16}/> Log Sensor Reading
+            </button>
+          </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <SectionHeading icon={Cpu} title="IoT Sensor Stream" subtitle="Short-term memory — last 7 days of field readings" />
+              <SectionHeading icon={Cpu} title="IoT Sensor Stream" subtitle="Field sensor readings — all logged to permanent memory" />
               <div>{iotEvents.map((ev, i) => <IotEventRow key={ev.id||i} ev={ev} idx={i}/>)}</div>
             </div>
             <div>
@@ -760,9 +909,54 @@ export default function FarmMemoryPage() {
         </div>
       )
 
+      // ── ACTIVITY FEED (Unified Timeline) ────────────────────
+      case 'activity': {
+        const events = [
+          ...cropHistory.map(c => ({ ts: c.sown_date, type: 'crop', icon: '🌱', color: 'bg-green-100 text-green-700', title: `Sown: ${c.crop}`, detail: `${c.area_ha} ha • ${c.season}` })),
+          ...cropHistory.filter(c=>c.harvested_date).map(c => ({ ts: c.harvested_date, type: 'harvest', icon: '🌾', color: 'bg-yellow-100 text-yellow-700', title: `Harvested: ${c.crop}`, detail: `${c.yield_tons}t yield • ₹${c.revenue_inr?.toLocaleString()}` })),
+          ...soilReadings.map(r => ({ ts: r.date, type: 'soil', icon: '🧪', color: 'bg-blue-100 text-blue-700', title: 'Soil Test', detail: `N:${r.nitrogen} P:${r.phosphorus} K:${r.potassium} pH:${r.ph}` })),
+          ...irrigEvents.map(e => ({ ts: e.date, type: 'irrig', icon: '💧', color: 'bg-cyan-100 text-cyan-700', title: `Irrigated: ${e.zone}`, detail: `${e.water_kl} kL • ${e.method}` })),
+          ...diseaseHist.map(d => ({ ts: d.date, type: 'disease', icon: '🐛', color: 'bg-red-100 text-red-700', title: `${d.disease} — ${d.crop}`, detail: `Severity: ${d.severity} • ${d.resolved ? 'Resolved' : 'Active'}` })),
+          ...weatherHist.map(w => ({ ts: w.period?.split('–')[0] || '', type: 'weather', icon: '⛅', color: 'bg-sky-100 text-sky-700', title: w.season, detail: `${w.avg_temp}°C • ${w.rainfall_mm}mm` })),
+          ...feedbackLog.map(f => ({ ts: f.date, type: 'feedback', icon: '⭐', color: 'bg-purple-100 text-purple-700', title: `Feedback: ${f.recommendation?.slice(0,40)}...`, detail: `Rating: ${f.rating}/5` })),
+        ].filter(e => e.ts).sort((a,b) => b.ts.localeCompare(a.ts))
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div><h2 className="text-xl font-bold text-slate-800">Unified Activity Feed</h2><p className="text-sm text-slate-500 mt-0.5">All farm events in chronological order — {events.length} total records</p></div>
+              <span className="text-xs bg-slate-100 px-3 py-1 rounded-full font-semibold text-slate-600">{events.length} events</span>
+            </div>
+            <div className="relative border-l-2 border-slate-200 ml-4 space-y-0">
+              {events.map((ev, i) => (
+                <motion.div key={i} initial={{opacity:0,x:-8}} animate={{opacity:1,x:0}} transition={{delay:Math.min(i*0.03,0.5)}}
+                  className="relative pl-8 pb-5">
+                  <div className="absolute -left-3.5 top-0.5 w-7 h-7 rounded-full border-2 border-white shadow flex items-center justify-center text-sm bg-white">
+                    {ev.icon}
+                  </div>
+                  <div className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold mb-1 ${ev.color}`}>{ev.type.toUpperCase()}</div>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">{ev.title}</p>
+                      <p className="text-xs text-slate-500">{ev.detail}</p>
+                    </div>
+                    <span className="text-xs text-slate-400 flex-shrink-0 ml-4">{ev.ts}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
       // ── FEEDBACK LOOP ─────────────────────────────────────────
       case 'feedback': return (
         <div className="space-y-6">
+          <div className="flex justify-end">
+            <button onClick={() => setShowAddFeedback(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm hover:bg-purple-700 transition-colors">
+              <Plus size={16}/> Log Recommendation Outcome
+            </button>
+          </div>
           <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-6">
             <SectionHeading icon={MessageCircle} title="Reinforcement Learning Loop" color="text-purple-600"
               subtitle="Farmer ratings & outcomes are fed back into the AI to improve future recommendations." />
@@ -992,14 +1186,37 @@ export default function FarmMemoryPage() {
           {k:'humidity_pct',label:'Humidity (%)',type:'number'},{k:'frost_days',label:'Frost Days',type:'number'},
           {k:'notable',label:'Notable Observations',type:'text'},
         ]} />}
+
+      {/* ADD IOT SENSOR EVENT MODAL */}
+      {showAddIot && <SimpleModal title="Log Sensor Reading" color="emerald" onClose={() => setShowAddIot(false)}
+        onSubmit={handleAddIot}
+        fields={[
+          {k:'ts',label:'Timestamp (YYYY-MM-DDTHH:mm)',type:'text'},
+          {k:'sensor',label:'Sensor Name (e.g. Soil-Moist-Zone1)',type:'text'},
+          {k:'metric',label:'Metric (e.g. soil_moisture)',type:'text'},
+          {k:'value',label:'Value',type:'number'},
+          {k:'unit',label:'Unit (%, °C, mm, etc.)',type:'text'},
+          {k:'status',label:'Status (normal/warning/critical)',type:'text'},
+        ]} />}
+
+      {/* ADD FEEDBACK ENTRY MODAL */}
+      {showAddFeedback && <SimpleModal title="Log Recommendation Outcome" color="purple" onClose={() => setShowAddFeedback(false)}
+        onSubmit={handleAddFeedback}
+        fields={[
+          {k:'date',label:'Date',type:'date'},
+          {k:'recommendation',label:'AI Recommendation Given',type:'text'},
+          {k:'rating',label:'Accuracy Rating (1-5)',type:'number'},
+          {k:'followed',label:'Did you follow it? (true/false)',type:'text'},
+          {k:'actual_outcome',label:'Actual Outcome (what happened)',type:'text'},
+        ]} />}
     </div>
   )
 }
 
 // ── Reusable Simple Modal Form ─────────────────────────────────
 function SimpleModal({ title, color, fields, onSubmit, onClose }) {
-  const colors = { emerald:'bg-emerald-600', cyan:'bg-cyan-600', red:'bg-red-600', blue:'bg-blue-600' }
-  const borders = { emerald:'focus:border-emerald-500', cyan:'focus:border-cyan-500', red:'focus:border-red-500', blue:'focus:border-blue-500' }
+  const colors = { emerald:'bg-emerald-600', cyan:'bg-cyan-600', red:'bg-red-600', blue:'bg-blue-600', purple:'bg-purple-600' }
+  const borders = { emerald:'focus:border-emerald-500', cyan:'focus:border-cyan-500', red:'focus:border-red-500', blue:'focus:border-blue-500', purple:'focus:border-purple-500' }
   const [form, setForm] = useState(() => Object.fromEntries(fields.map(f => [f.k, ''])))
   const set = (k, v) => setForm(p => ({...p, [k]: v}))
   const handleSubmit = () => {

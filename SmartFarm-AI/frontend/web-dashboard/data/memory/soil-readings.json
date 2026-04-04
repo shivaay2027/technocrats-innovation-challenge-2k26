@@ -1,5 +1,15 @@
 [
   {
+    "id": "SR-1775333561591",
+    "date": "2026-04-05",
+    "nitrogen": 5,
+    "phosphorus": 5,
+    "potassium": 6,
+    "ph": 7,
+    "organic_carbon": 10,
+    "ec": 12
+  },
+  {
     "id": "SR-001",
     "date": "2022-04-10",
     "nitrogen": 62,
