@@ -35,22 +35,27 @@ export default function LaborHub() {
   const [myProfileId, setMyProfileId] = useState(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from localStorage naturally post-hydration
+  // Load from database naturally post-hydration
   useEffect(() => {
-    const savedWorkers = localStorage.getItem('smartfarm_workers')
+    fetch('/api/labor', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) setWorkers(data)
+      })
+      .catch(err => console.error("Could not load workers", err));
+
     const savedBookings = localStorage.getItem('smartfarm_bookings')
     const savedProfile = localStorage.getItem('smartfarm_myProfileId')
     
-    if (savedWorkers) setWorkers(JSON.parse(savedWorkers))
     if (savedBookings) setBookings(JSON.parse(savedBookings))
     if (savedProfile) setMyProfileId(parseInt(savedProfile))
     
     setIsLoaded(true)
   }, [])
 
-  // Sync to localStorage only AFTER the initial loading pass is complete
+  // Sync bookings to localStorage only AFTER the initial loading pass is complete
   useEffect(() => {
-    if (isLoaded) localStorage.setItem('smartfarm_workers', JSON.stringify(workers))
+    // Workers are now stored permanently in the API/database, so no need for localStorage sync
   }, [workers, isLoaded])
   
   useEffect(() => {
@@ -440,21 +445,33 @@ function JoinHubFlow({ setWorkers, setActiveTab, setMyProfileId }) {
     setStep(role === 'LABOURER' ? 'LABOUR_DETAILS' : 'FARMER_DETAILS')
   }
 
-  const handleLabourSubmit = () => {
+  const handleLabourSubmit = async () => {
     setStep('VERIFICATION')
-    setTimeout(() => {
-      const newId = Math.floor(Math.random() * 10000)
-      setStep('SUCCESS_LABOUR')
-      setWorkers(prev => [{
-        id: newId,
-        name: name || 'Aman M.',
-        phone: phone || '919999999999',
-        skills: skills,
-        rating: 5.0, reviews: 0, exp: '1 yr', dist: '0.5 km', rate: wage, available: true, lang: 'Hindi', reliability: 100, aiMatch: 99, verified: true, avatar: name ? name.substring(0,2).toUpperCase() : 'AM', lastJob: 'New Profile'
-      }, ...prev])
-      setMyProfileId(newId)
-      localStorage.setItem('smartfarm_myProfileId', newId)
-    }, 2000)
+    
+    const newId = Math.floor(Math.random() * 10000)
+    const newWorker = {
+      id: newId,
+      name: name || 'Aman M.',
+      phone: phone || '919999999999',
+      skills: skills,
+      rating: 5.0, reviews: 0, exp: '1 yr', dist: '0.5 km', rate: wage, available: true, lang: 'Hindi', reliability: 100, aiMatch: 99, verified: true, avatar: name ? name.substring(0,2).toUpperCase() : 'AM', lastJob: 'New Profile'
+    };
+
+    try {
+      await fetch('/api/labor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newWorker)
+      });
+      setWorkers(prev => [newWorker, ...prev]);
+      setMyProfileId(newId);
+      localStorage.setItem('smartfarm_myProfileId', newId);
+      setStep('SUCCESS_LABOUR');
+    } catch(err) {
+      console.error(err);
+      alert("Failed to save profile permanently. Please try again.");
+      setStep('LABOUR_DETAILS');
+    }
   }
 
   const handleFarmerSubmit = () => {
