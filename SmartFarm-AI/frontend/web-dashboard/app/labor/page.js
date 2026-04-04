@@ -26,25 +26,36 @@ export default function LaborHub() {
   
   // App-level state for demo interactions
   const [workers, setWorkers] = useState(initialWorkers)
+  
   const [bookings, setBookings] = useState([
     { id: 101, worker: initialWorkers[0], date: 'Oct 24, 2026', status: 'Upcoming', type: 'Harvesting', amount: 650 },
     { id: 102, worker: initialWorkers[2], date: 'Oct 15, 2026', status: 'Completed', type: 'Spraying', amount: 850 }
   ])
+  
   const [myProfileId, setMyProfileId] = useState(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from localStorage on mount
+  // Load from localStorage naturally post-hydration
   useEffect(() => {
     const savedWorkers = localStorage.getItem('smartfarm_workers')
     const savedBookings = localStorage.getItem('smartfarm_bookings')
     const savedProfile = localStorage.getItem('smartfarm_myProfileId')
+    
     if (savedWorkers) setWorkers(JSON.parse(savedWorkers))
     if (savedBookings) setBookings(JSON.parse(savedBookings))
     if (savedProfile) setMyProfileId(parseInt(savedProfile))
+    
+    setIsLoaded(true)
   }, [])
 
-  // Sync to localStorage
-  useEffect(() => { localStorage.setItem('smartfarm_workers', JSON.stringify(workers)) }, [workers])
-  useEffect(() => { localStorage.setItem('smartfarm_bookings', JSON.stringify(bookings)) }, [bookings])
+  // Sync to localStorage only AFTER the initial loading pass is complete
+  useEffect(() => {
+    if (isLoaded) localStorage.setItem('smartfarm_workers', JSON.stringify(workers))
+  }, [workers, isLoaded])
+  
+  useEffect(() => {
+    if (isLoaded) localStorage.setItem('smartfarm_bookings', JSON.stringify(bookings))
+  }, [bookings, isLoaded])
 
   const handleRemoveProfile = () => {
     if(confirm('Are you sure you want to remove your profile from the SmartFarm Marketplace?')) {

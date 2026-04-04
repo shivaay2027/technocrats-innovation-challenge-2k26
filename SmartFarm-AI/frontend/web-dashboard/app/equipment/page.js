@@ -23,24 +23,35 @@ export default function EquipmentHub() {
   const [activeTab, setActiveTab] = useState('find') // 'find', 'dashboard', 'list'
   
   const [equipmentList, setEquipmentList] = useState(initialEquipment)
+  
   const [bookings, setBookings] = useState([
     { id: 501, equipment: initialEquipment[0], date: 'Oct 26, 2026', duration: '2 Days', amount: 9000, status: 'Upcoming', as: 'Renter' }
   ])
+  
   const [myProfileId, setMyProfileId] = useState(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from localStorage
+  // Load from localStorage safely post-hydration
   useEffect(() => {
     const savedEq = localStorage.getItem('smartfarm_equipment')
     const savedBookings = localStorage.getItem('smartfarm_eq_bookings')
     const savedProfile = localStorage.getItem('smartfarm_myEqOwnerId')
+    
     if (savedEq) setEquipmentList(JSON.parse(savedEq))
     if (savedBookings) setBookings(JSON.parse(savedBookings))
     if (savedProfile) setMyProfileId(parseInt(savedProfile))
+    
+    setIsLoaded(true)
   }, [])
 
-  // Sync to localStorage
-  useEffect(() => { localStorage.setItem('smartfarm_equipment', JSON.stringify(equipmentList)) }, [equipmentList])
-  useEffect(() => { localStorage.setItem('smartfarm_eq_bookings', JSON.stringify(bookings)) }, [bookings])
+  // Sync to localStorage only AFTER loading is complete
+  useEffect(() => {
+    if (isLoaded) localStorage.setItem('smartfarm_equipment', JSON.stringify(equipmentList))
+  }, [equipmentList, isLoaded])
+  
+  useEffect(() => {
+    if (isLoaded) localStorage.setItem('smartfarm_eq_bookings', JSON.stringify(bookings))
+  }, [bookings, isLoaded])
 
   const handleBooking = (eqId, durationType, units, date) => {
     const eq = equipmentList.find(e => e.id === eqId)
