@@ -22,15 +22,15 @@ const VENDORS = [
 // Massive realistic catalog simulating the exact catalogs of those platforms with direct buy URLs
 const products = [
   // ── BigHaat Actual Products ──
-  { id:1, name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide', price:1150, unit:'250 ml', rating:4.8, brand:'Syngenta', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/products/syngenta-alika-insecticide-1', icon:<Package size={28}/> },
+  { id:1, name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide', price:1150, unit:'250 ml', rating:4.8, brand:'Syngenta', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Syngenta+Alika', icon:<Package size={28}/> },
   { id:2, name:'Bayer Nativo Fungicide (Tebuconazole + Trifloxystrobin)', cat:'Fungicide', price:2450, unit:'1 kg', rating:4.9, brand:'Bayer', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/products/bayer-nativo-fungicide', icon:<FlaskConical size={28}/> },
-  { id:3, name:'Tata Rallis Asataf (Acephate 75% SP)', cat:'Pesticide', price:850, unit:'1 kg', rating:4.6, brand:'Tata Rallis', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/products/tata-asataf-insecticide', icon:<Package size={28}/> },
-  { id:4, name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)', cat:'Pesticide', price:1850, unit:'150 ml', rating:4.9, brand:'FMC', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/products/coragen-insecticide-fmc', icon:<Package size={28}/> },
+  { id:3, name:'Tata Rallis Asataf (Acephate 75% SP)', cat:'Pesticide', price:850, unit:'1 kg', rating:4.6, brand:'Tata Rallis', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Tata+Asataf', icon:<Package size={28}/> },
+  { id:4, name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)', cat:'Pesticide', price:1850, unit:'150 ml', rating:4.9, brand:'FMC', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Coragen', icon:<Package size={28}/> },
   
   // ── Agriplex India Actual Products ──
-  { id:5, name:'Syngenta Pegasus Insecticide (Diafenthiuron 50% WP)', cat:'Pesticide', price:1290, unit:'500 g', rating:4.8, brand:'Syngenta', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/products/pegasus', icon:<Package size={28}/> },
+  { id:5, name:'Syngenta Pegasus Insecticide (Diafenthiuron 50% WP)', cat:'Pesticide', price:1290, unit:'500 g', rating:4.8, brand:'Syngenta', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/search?q=Pegasus', icon:<Package size={28}/> },
   { id:6, name:'UPL Saaf Fungicide (Carbendazim 12% + Mancozeb)', cat:'Fungicide', price:450, unit:'500 g', rating:4.7, brand:'UPL', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/products/upl-saaf-fungicide', icon:<FlaskConical size={28}/> },
-  { id:7, name:'Bayer Fame Insecticide (Flubendiamide 39.35% SC)', cat:'Pesticide', price:1350, unit:'100 ml', rating:4.8, brand:'Bayer', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/products/bayer-fame', icon:<Package size={28}/> },
+  { id:7, name:'Bayer Fame Insecticide (Flubendiamide 39.35% SC)', cat:'Pesticide', price:1350, unit:'100 ml', rating:4.8, brand:'Bayer', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/search?q=Bayer+Fame', icon:<Package size={28}/> },
   
   // ── Paidavaar Actual Products ──
   { id:8, name:'IFFCO Nano Urea Liquid', cat:'Fertilizer', price:240, unit:'500 ml', rating:4.8, brand:'IFFCO', vendor:'paidavaar', buyUrl: 'https://paidavaar.in/', icon:<FlaskConical size={28}/> },

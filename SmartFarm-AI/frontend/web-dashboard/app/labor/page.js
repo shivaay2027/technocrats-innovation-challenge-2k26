@@ -1,83 +1,414 @@
 'use client'
-import { useState } from 'react'
-import { Users, Star, MapPin, Phone, Check, Search, Filter } from 'lucide-react'
 
-const workers = [
-  { id:1, name:'Suresh Yadav',    skills:['Harvesting','Sowing','Irrigation'], rating:4.9, exp:'8 yrs', dist:'1.2 km', rate:650,  available:true,  lang:'Hindi',             img:'SY' },
-  { id:2, name:'Ramkali Devi',    skills:['Weeding','Transplanting'],           rating:4.7, exp:'5 yrs', dist:'3.1 km', rate:550,  available:true,  lang:'Hindi, Bhojpuri',   img:'RD' },
-  { id:3, name:'Arjun Patil',     skills:['Tractor Operator','Spraying'],       rating:4.8, exp:'10 yrs',dist:'5.5 km', rate:850,  available:false, lang:'Marathi, Hindi',    img:'AP' },
-  { id:4, name:'Krishnamma S.',   skills:['Harvesting','Grading','Packing'],    rating:4.6, exp:'6 yrs', dist:'2.8 km', rate:600,  available:true,  lang:'Telugu, Kannada',   img:'KS' },
-  { id:5, name:'Mohan Gawli',     skills:['Drone Operator','Spraying'],         rating:5.0, exp:'3 yrs', dist:'8.2 km', rate:1200, available:true,  lang:'Marathi',           img:'MG' },
-  { id:6, name:'Fatima Shaikh',   skills:['Weeding','Sowing','Fertilization'],  rating:4.5, exp:'4 yrs', dist:'4.0 km', rate:500,  available:false, lang:'Urdu, Hindi',       img:'FS' },
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Users, Star, MapPin, Phone, Check, Search, Filter, CalendarDays, 
+  Wallet, ShieldCheck, Map, Clock, BadgeCheck, X, Briefcase, 
+  MessageSquare, ThumbsUp, Languages, Award
+} from 'lucide-react'
+
+// ── HUGE MOCK DATASET (AI Enriched) ──
+const initialWorkers = [
+  { id:1, name:'Suresh Yadav', skills:['Harvesting','Sowing','Irrigation'], rating:4.9, reviews: 42, exp:'8 yrs', dist:'1.2 km', rate:650, available:true, lang:'Hindi', reliability: 98, aiMatch: 95, verified: true, avatar: 'SY', lastJob: 'Harvested Wheat' },
+  { id:2, name:'Ramkali Devi', skills:['Weeding','Transplanting'], rating:4.7, reviews: 31, exp:'5 yrs', dist:'3.1 km', rate:550, available:true, lang:'Hindi, Bhojpuri', reliability: 94, aiMatch: 88, verified: true, avatar: 'RD', lastJob: 'Paddy Transplanting' },
+  { id:3, name:'Arjun Patil', skills:['Tractor Operator','Spraying'], rating:4.8, reviews: 55, exp:'10 yrs', dist:'5.5 km', rate:850, available:false, lang:'Marathi, Hindi', reliability: 99, aiMatch: 92, verified: true, avatar: 'AP', lastJob: 'Pesticide Application' },
+  { id:4, name:'Krishnamma S.', skills:['Harvesting','Grading','Packing'], rating:4.6, reviews: 18, exp:'6 yrs', dist:'2.8 km', rate:600, available:true, lang:'Telugu, Kannada', reliability: 89, aiMatch: 85, verified: false, avatar: 'KS', lastJob: 'Tomato Grading' },
+  { id:5, name:'Mohan Gawli', skills:['Drone Operator','Spraying','Tech Equip'], rating:5.0, reviews: 12, exp:'3 yrs', dist:'8.2 km', rate:1200, available:true, lang:'Marathi, English', reliability: 100, aiMatch: 97, verified: true, avatar: 'MG', lastJob: 'Drone Spraying' },
+  { id:6, name:'Fatima Shaikh', skills:['Weeding','Sowing','Fertilization'], rating:4.5, reviews: 24, exp:'4 yrs', dist:'4.0 km', rate:500, available:true, lang:'Urdu, Hindi', reliability: 91, aiMatch: 81, verified: true, avatar: 'FS', lastJob: 'Fertilizer Spread' },
+  { id:7, name:'Vijay Kumar', skills:['Irrigation','Hard Labor','Tractor'], rating:4.9, reviews: 88, exp:'15 yrs', dist:'2.0 km', rate:700, available:true, lang:'Hindi, Punjabi', reliability: 96, aiMatch: 90, verified: true, avatar: 'VK', lastJob: 'Pipe Laying' },
+  { id:8, name:'Sunita Meena', skills:['Harvesting','Weeding'], rating:4.4, reviews: 9, exp:'2 yrs', dist:'6.0 km', rate:450, available:true, lang:'Hindi', reliability: 85, aiMatch: 75, verified: false, avatar: 'SM', lastJob: 'Cotton Picking' },
 ]
 
+// ── MAIN APPLICATION COMPONENT ──
 export default function LaborHub() {
-  const [search, setSearch] = useState('')
-  const [showAvail, setShowAvail] = useState(false)
-  const list = workers.filter(w =>
-    (!showAvail || w.available) &&
-    (w.name.toLowerCase().includes(search.toLowerCase()) || w.skills.some(s=>s.toLowerCase().includes(search.toLowerCase())))
-  )
+  const [activeTab, setActiveTab] = useState('find') // 'find', 'bookings', 'register'
+  
+  // App-level state for demo interactions
+  const [workers, setWorkers] = useState(initialWorkers)
+  const [bookings, setBookings] = useState([
+    { id: 101, worker: initialWorkers[0], date: 'Oct 24, 2026', status: 'Upcoming', type: 'Harvesting', amount: 650 },
+    { id: 102, worker: initialWorkers[2], date: 'Oct 15, 2026', status: 'Completed', type: 'Spraying', amount: 850 }
+  ])
+
+  // Book a worker from the Find Tab
+  const handleHire = (workerId, jobType, date) => {
+    const worker = workers.find(w => w.id === workerId)
+    setBookings([{ 
+      id: Math.floor(Math.random()*10000), 
+      worker, 
+      date: date || 'Tomorrow', 
+      status: 'Pending', 
+      type: jobType || 'General Farm Work', 
+      amount: worker.rate 
+    }, ...bookings])
+    
+    // Mark as pending/booked locally
+    setWorkers(workers.map(w => w.id === workerId ? {...w, available: false} : w))
+    alert(`Hire request sent to ${worker.name}. They will be notified via SMS.`)
+  }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Labor Hub</h1>
-          <p className="text-slate-500 mt-2">Hire skilled agricultural workers near your farm on-demand.</p>
+    <div className="max-w-7xl mx-auto space-y-6 pb-20">
+      {/* HEADER & NAV */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-2xl">
+        <div className="absolute right-0 top-0 opacity-10 pointer-events-none p-4">
+          <Users size={180} />
         </div>
-        <div className="bg-leaf-50 border border-leaf-200 px-4 py-2 rounded-xl text-sm font-semibold text-leaf-700">
-          {workers.filter(w=>w.available).length} workers available nearby
-        </div>
-      </div>
-
-      <div className="flex gap-3 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18}/>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name or skill..." className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400"/>
-        </div>
-        <button onClick={()=>setShowAvail(!showAvail)} className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${showAvail?'bg-leaf-600 text-white border-leaf-600':'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}>
-          <Filter size={16}/> Available Only
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {list.map(w => (
-          <div key={w.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col">
-            <div className="flex items-start gap-4 mb-4">
-              <div className={`w-12 h-12 rounded-xl font-bold text-white flex items-center justify-center flex-shrink-0 ${w.available ? 'bg-leaf-500' : 'bg-slate-400'}`}>{w.img}</div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-slate-800 truncate">{w.name}</h3>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <Star size={13} className="text-amber-400 fill-amber-400"/>
-                  <span className="text-sm font-semibold text-slate-700">{w.rating}</span>
-                  <span className="text-xs text-slate-400">• {w.exp}</span>
-                </div>
-              </div>
-              <span className={`text-xs px-2 py-1 rounded-full font-bold ${w.available ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-400 border border-slate-200'}`}>
-                {w.available ? 'Available' : 'Busy'}
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 backdrop-blur-md">
+                <ShieldCheck size={14}/> Verified Network
               </span>
             </div>
+            <h1 className="text-4xl lg:text-5xl font-black mb-3 tracking-tight">SmartFarm Labour Hub</h1>
+            <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed">
+              Connect with reliable, skilled agricultural workers in your area. AI-matched for your specific farm needs based on proximity, skills, and past performance.
+            </p>
+          </div>
+        </div>
 
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {w.skills.map(s=><span key={s} className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-md border border-slate-200">{s}</span>)}
+        {/* TABS */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar relative z-10 bg-white/10 p-1.5 rounded-2xl w-fit backdrop-blur-md border border-white/10">
+          <button onClick={() => setActiveTab('find')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab==='find' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            <Search size={16}/> Hire Labour
+          </button>
+          <button onClick={() => setActiveTab('bookings')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab==='bookings' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            <Briefcase size={16}/> My Bookings
+            {bookings.filter(b=>b.status==='Pending').length > 0 && (
+              <span className="bg-rose-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] ml-1">{bookings.filter(b=>b.status==='Pending').length}</span>
+            )}
+          </button>
+          <button onClick={() => setActiveTab('register')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab==='register' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}>
+            <Users size={16}/> Join Hub
+          </button>
+        </div>
+      </div>
+
+      {/* RENDER ACTIVE TAB */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {activeTab === 'find' && <FindLabour workers={workers} onHire={handleHire} />}
+          {activeTab === 'bookings' && <MyBookings bookings={bookings} />}
+          {activeTab === 'register' && <RegisterLabour />}
+        </motion.div>
+      </AnimatePresence>
+
+    </div>
+  )
+}
+
+// ── 1. FIND LABOUR VIEW (The Marketplace) ──
+function FindLabour({ workers, onHire }) {
+  const [search, setSearch] = useState('')
+  const [skillFilter, setSkillFilter] = useState('All')
+  const [showAvail, setShowAvail] = useState(false)
+  const [selectedWorker, setSelectedWorker] = useState(null) // for booking modal
+  
+  const allSkills = ['All', ...new Set(workers.flatMap(w => w.skills))]
+
+  const filtered = workers.filter(w =>
+    (!showAvail || w.available) &&
+    (skillFilter === 'All' || w.skills.includes(skillFilter)) &&
+    (w.name.toLowerCase().includes(search.toLowerCase()) || w.skills.some(s=>s.toLowerCase().includes(search.toLowerCase())))
+  ).sort((a,b) => b.aiMatch - a.aiMatch) // Sort by AI match score
+
+  return (
+    <div className="space-y-6">
+      {/* Controls */}
+      <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18}/>
+          <input 
+            value={search} onChange={e=>setSearch(e.target.value)} 
+            placeholder="Search by worker name, skill, or location..." 
+            className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all shadow-inner"
+          />
+        </div>
+        <div className="flex gap-2 pb-1 overflow-x-auto no-scrollbar items-center">
+          <div className="h-8 w-px bg-slate-200 hidden md:block mx-2"></div>
+          {allSkills.map(s => (
+            <button key={s} onClick={()=>setSkillFilter(s)} className={`px-4 py-2 font-bold text-xs whitespace-nowrap rounded-xl border transition-all ${skillFilter===s ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
+              {s}
+            </button>
+          ))}
+          <button onClick={()=>setShowAvail(!showAvail)} className={`ml-2 px-4 py-2 font-bold text-xs whitespace-nowrap rounded-xl border transition-all flex items-center gap-1.5 ${showAvail ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}`}>
+            <Filter size={14}/> Avail. Only
+          </button>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filtered.map(w => (
+          <div key={w.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col group relative">
+            
+            {/* AI Match Banner */}
+            <div className={`absolute top-0 left-0 w-full h-1.5 ${w.aiMatch > 90 ? 'bg-emerald-500' : w.aiMatch > 80 ? 'bg-amber-400' : 'bg-slate-300'}`}></div>
+            
+            {/* Top Stats */}
+            <div className="p-5 pb-3 flex justify-between items-start">
+               <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-2xl font-black text-2xl text-white flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-slate-700 to-slate-900 shadow-md relative">
+                    {w.avatar}
+                    {w.verified && (
+                      <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-0.5 shadow-sm">
+                        <BadgeCheck size={20} className="text-blue-500"/>
+                      </div>
+                    )}
+                  </div>
+               </div>
+               <div className="text-right">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-black text-sm border border-emerald-100">
+                    <Award size={14}/> {w.aiMatch}% Match
+                  </div>
+                  <div className="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex justify-end items-center gap-1">
+                    <Star size={10} className="text-amber-400 fill-amber-400"/> {w.rating} ({w.reviews} Reviews)
+                  </div>
+               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">
-              <span className="flex items-center gap-1"><MapPin size={12}/>{w.dist}</span>
-              <span>•</span>
-              <span>Speaks: {w.lang}</span>
+            {/* Content */}
+            <div className="px-5 flex-1 flex flex-col">
+              <h3 className="font-black text-lg text-slate-900 mb-1">{w.name}</h3>
+              {w.verified ? (
+                <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mb-3"><ShieldCheck size={12}/> Aadhaar Verified ID</p>
+              ) : (
+                <p className="text-xs font-bold text-slate-400 flex items-center gap-1 mb-3"><Map size={12}/> Standard Profile</p>
+              )}
+              
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {w.skills.map(s=><span key={s} className="bg-slate-100 text-slate-600 text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-lg border border-slate-200">{s}</span>)}
+              </div>
+
+              <div className="space-y-2 mt-auto">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500">
+                  <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400"/> {w.dist} away</span>
+                  <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-400"/> {w.exp} exp</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500">
+                  <span className="flex items-center gap-1.5"><ThumbsUp size={14} className="text-slate-400"/> {w.reliability}% Reliable</span>
+                  <span className="flex items-center gap-1.5"><Languages size={14} className="text-slate-400"/> {w.lang}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-              <div><span className="text-xl font-black text-leaf-600">₹{w.rate}</span><span className="text-xs text-slate-400">/day</span></div>
-              <button disabled={!w.available} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${w.available ? 'bg-slate-900 text-white hover:bg-leaf-600' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
-                {w.available ? <><Phone size={14}/> Hire Now</> : <><Check size={14}/> Booked</>}
+            {/* Footer / Action */}
+            <div className="mt-5 p-5 pt-4 bg-slate-50 border-t border-slate-100 flex items-end justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Est. Wage</span>
+                <div className="font-black text-xl text-slate-900">₹{w.rate}<span className="text-sm text-slate-500 font-semibold">/day</span></div>
+              </div>
+              <button 
+                onClick={() => setSelectedWorker(w)}
+                disabled={!w.available} 
+                className={`py-2.5 px-5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2 ${w.available ? 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-emerald-600/20' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+              >
+                {w.available ? <><CalendarDays size={16}/> Hire</> : 'Booked'}
               </button>
             </div>
+            
           </div>
         ))}
       </div>
+
+      {/* Quick Booking Modal */}
+      <AnimatePresence>
+        {selectedWorker && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+               className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h2 className="text-xl font-black text-slate-800">Hire {selectedWorker.name}</h2>
+                <button onClick={() => setSelectedWorker(null)} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"><X size={20}/></button>
+              </div>
+              <div className="p-6 space-y-5">
+                <p className="text-sm text-slate-600 font-medium">Please confirm job details. We will hold the payment securely in escrow until job completion.</p>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Job Type</label>
+                  <select className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    {selectedWorker.skills.map(s => <option key={s}>{s}</option>)}
+                    <option>General Labour</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date Needed</label>
+                  <input type="date" className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+                </div>
+
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex justify-between items-center">
+                   <div>
+                     <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block mb-1">Total Expected Wage</span>
+                     <span className="text-emerald-600 text-xs font-medium block">Secured payment option enabled</span>
+                   </div>
+                   <div className="text-2xl font-black text-emerald-600">₹{selectedWorker.rate}</div>
+                </div>
+
+              </div>
+              <div className="p-6 pt-0 flex gap-3">
+                <button onClick={() => setSelectedWorker(null)} className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">Cancel</button>
+                <button 
+                  onClick={() => {
+                    onHire(selectedWorker.id, selectedWorker.skills[0], 'Scheduled')
+                    setSelectedWorker(null)
+                  }} 
+                  className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2"
+                >
+                  <Check size={18}/> Send Request
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// ── 2. MY BOOKINGS VIEW ──
+function MyBookings({ bookings }) {
+  if(bookings.length === 0) {
+    return (
+      <div className="bg-white rounded-3xl border border-slate-200 p-16 text-center shadow-sm max-w-2xl mx-auto">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Briefcase size={32} className="text-slate-400"/>
+        </div>
+        <h3 className="text-xl font-bold text-slate-800 mb-2">No active bookings</h3>
+        <p className="text-slate-500 text-sm">You haven't hired any labourers yet. Head over to the Find Labour tab to start hiring.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {bookings.map(b => (
+        <div key={b.id} className="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl font-black text-xl text-white flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-slate-700 to-slate-900 shadow-sm">
+              {b.worker.avatar}
+            </div>
+            <div>
+              <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+                {b.worker.name} 
+                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${b.status==='Pending'?'bg-amber-100 text-amber-700':b.status==='Completed'?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}`}>
+                  {b.status}
+                </span>
+              </h4>
+              <p className="text-sm font-medium text-slate-500 mt-1">{b.type} • {b.date}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4 border-t border-slate-100 md:border-none pt-4 md:pt-0">
+             <div className="text-right md:mr-4">
+               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Agreed Wage</span>
+               <span className="font-black text-slate-800 text-lg">₹{b.amount}</span>
+             </div>
+             
+             {b.status === 'Pending' && (
+               <button className="flex items-center gap-2 bg-slate-900 text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-slate-800 shadow-md">
+                 <Phone size={16}/> Call
+               </button>
+             )}
+             
+             {b.status === 'Completed' && (
+               <div className="flex gap-2">
+                 <button className="flex items-center justify-center bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-sm w-11 h-11 py-2.5 rounded-xl hover:bg-emerald-100 transition-colors" title="Release Payment">
+                   <Wallet size={18}/>
+                 </button>
+                 <button className="flex items-center justify-center bg-slate-50 text-slate-700 border border-slate-200 font-bold text-sm w-11 h-11 py-2.5 rounded-xl hover:bg-slate-100 transition-colors" title="Leave Review">
+                   <MessageSquare size={18}/>
+                 </button>
+               </div>
+             )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── 3. REGISTER LABOURER VIEW (Onboarding Flow) ──
+function RegisterLabour() {
+  return (
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden max-w-4xl mx-auto flex flex-col md:flex-row min-h-[500px]">
+      
+      {/* Side Panel */}
+      <div className="bg-slate-900 text-white p-8 md:w-1/3 flex flex-col justify-between">
+        <div>
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-2xl border border-white/20 mb-6">
+            <Users size={24} className="text-emerald-400"/>
+          </div>
+          <h2 className="text-2xl font-black mb-3">Join Local Labour Hub</h2>
+          <p className="text-slate-400 text-sm leading-relaxed mb-8">
+            Create your profile to get discovered by farmers near you. Consistent work, guaranteed payments, and no middlemen.
+          </p>
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 text-sm font-medium text-slate-300">
+              <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">1</span>
+              Basic Details
+            </div>
+            <div className="flex items-center gap-3 text-sm font-bold text-white">
+              <span className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">2</span>
+              Skills & Rates
+            </div>
+            <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+              <span className="w-8 h-8 rounded-full bg-slate-800 text-slate-600 flex items-center justify-center font-bold">3</span>
+              Aadhaar Verify
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-12 p-4 bg-emerald-900/30 rounded-2xl border border-emerald-500/20 shadow-inner">
+          <p className="text-xs font-medium text-emerald-200/80 mb-2">Voice Support Enabled</p>
+          <button className="w-full flex items-center justify-center gap-2 bg-emerald-600 py-3 rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors">
+            Tap to Speak (Bhojpuri)
+          </button>
+        </div>
+      </div>
+
+      {/* Form Area */}
+      <div className="p-8 md:p-12 md:w-2/3 flex flex-col justify-center bg-slate-50">
+        <div className="space-y-6 max-w-md mx-auto w-full">
+          <div>
+            <h3 className="text-xl font-black text-slate-800 mb-1">What work do you do?</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6">Select your top skills so right farmers can find you.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-8">
+            {['Harvesting', 'Sowing', 'Pesticide Spray', 'Tractor Driving', 'Weeding', 'Loading & Unloading'].map((s,i) => (
+              <label key={s} className={`cursor-pointer flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${i<2 ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                <input type="checkbox" className="w-5 h-5 accent-emerald-600" defaultChecked={i<2}/>
+                <span className={`text-sm font-bold ${i<2 ? 'text-emerald-800' : 'text-slate-600'}`}>{s}</span>
+              </label>
+            ))}
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Expected Daily Wage (₹)</label>
+            <input type="number" defaultValue={500} className="w-full border-2 border-slate-200 rounded-xl p-4 text-lg font-black bg-white focus:border-emerald-500 focus:outline-none focus:ring-0 transition-colors shadow-inner" />
+          </div>
+          
+          <div className="pt-6 border-t border-slate-200 flex justify-between items-center gap-4">
+            <button className="px-6 py-4 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-200 transition-colors">Back</button>
+            <button className="flex-1 py-4 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 shadow-xl shadow-slate-900/10">
+              Continue to Verify <Check size={18}/>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }
