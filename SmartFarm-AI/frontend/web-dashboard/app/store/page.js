@@ -21,45 +21,52 @@ const VENDORS = [
 
 // Massive realistic catalog simulating the exact catalogs of those platforms with direct buy URLs
 const products = [
-  // ── BigHaat Actual Products ──
-  { id:1, name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide', price:1150, unit:'250 ml', rating:4.8, brand:'Syngenta', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Syngenta+Alika', icon:<Package size={28}/> },
-  { id:2, name:'Bayer Nativo Fungicide (Tebuconazole + Trifloxystrobin)', cat:'Fungicide', price:2450, unit:'1 kg', rating:4.9, brand:'Bayer', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/products/bayer-nativo-fungicide', icon:<FlaskConical size={28}/> },
-  { id:3, name:'Tata Rallis Asataf (Acephate 75% SP)', cat:'Pesticide', price:850, unit:'1 kg', rating:4.6, brand:'Tata Rallis', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Tata+Asataf', icon:<Package size={28}/> },
-  { id:4, name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)', cat:'Pesticide', price:1850, unit:'150 ml', rating:4.9, brand:'FMC', vendor:'bighaat', buyUrl: 'https://www.bighaat.com/search?q=Coragen', icon:<Package size={28}/> },
-  
-  // ── Agriplex India Actual Products ──
-  { id:5, name:'Syngenta Pegasus Insecticide (Diafenthiuron 50% WP)', cat:'Pesticide', price:1290, unit:'500 g', rating:4.8, brand:'Syngenta', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/search?q=Pegasus', icon:<Package size={28}/> },
-  { id:6, name:'UPL Saaf Fungicide (Carbendazim 12% + Mancozeb)', cat:'Fungicide', price:450, unit:'500 g', rating:4.7, brand:'UPL', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/products/upl-saaf-fungicide', icon:<FlaskConical size={28}/> },
-  { id:7, name:'Bayer Fame Insecticide (Flubendiamide 39.35% SC)', cat:'Pesticide', price:1350, unit:'100 ml', rating:4.8, brand:'Bayer', vendor:'agriplex', buyUrl: 'https://agriplexindia.com/search?q=Bayer+Fame', icon:<Package size={28}/> },
-  
-  // ── Paidavaar Actual Products ──
-  { id:8, name:'IFFCO Nano Urea Liquid', cat:'Fertilizer', price:240, unit:'500 ml', rating:4.8, brand:'IFFCO', vendor:'paidavaar', buyUrl: 'https://paidavaar.in/', icon:<FlaskConical size={28}/> },
-  { id:9, name:'Sumitomo Danitol Insecticide (Fenpropathrin 10% EC)', cat:'Pesticide', price:650, unit:'1 L', rating:4.5, brand:'Sumitomo', vendor:'paidavaar', buyUrl: 'https://paidavaar.in/', icon:<Package size={28}/> },
-  { id:10, name:'PI Industries Biovita Seaweed Extract', cat:'Growth Promoter', price:490, unit:'500 ml', rating:4.7, brand:'PI Industries', vendor:'paidavaar', buyUrl: 'https://paidavaar.in/', icon:<FlaskConical size={28}/> },
+  // ── BigHaat ──
+  { id:1,  name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide',       price:1150, unit:'250 ml',   rating:4.8, brand:'Syngenta',     vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Syngenta+Alika+Insecticide',            icon:<Package size={28}/> },
+  { id:2,  name:'Bayer Nativo Fungicide (Tebuconazole + Trifloxystrobin)',               cat:'Fungicide',       price:2450, unit:'1 kg',     rating:4.9, brand:'Bayer',        vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Bayer+Nativo+Fungicide',                icon:<FlaskConical size={28}/> },
+  { id:3,  name:'Tata Rallis Asataf (Acephate 75% SP)',                                  cat:'Pesticide',       price:850,  unit:'1 kg',     rating:4.6, brand:'Tata Rallis',  vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Tata+Rallis+Asataf+Acephate',          icon:<Package size={28}/> },
+  { id:4,  name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)',                cat:'Pesticide',       price:1850, unit:'150 ml',   rating:4.9, brand:'FMC',          vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=FMC+Coragen+Insecticide',              icon:<Package size={28}/> },
 
-  // ── Pesticide India Actual Products ──
-  { id:11, name:'Dhanuka Craze Herbicide (Pretilachlor 50% EC)', cat:'Herbicide', price:310, unit:'500 ml', rating:4.6, brand:'Dhanuka', vendor:'pesticide_india', buyUrl: 'https://pesticideindia.in/', icon:<Package size={28}/> },
-  { id:12, name:'Crystal Abacin (Abamectin 1.9% EC)', cat:'Pesticide', price:480, unit:'250 ml', rating:4.5, brand:'Crystal Crop', vendor:'pesticide_india', buyUrl: 'https://pesticideindia.in/', icon:<Package size={28}/> },
-  { id:13, name:'Katyayani Imidacloprid 17.8% SL', cat:'Pesticide', price:400, unit:'500 ml', rating:4.6, brand:'Katyayani', vendor:'pesticide_india', buyUrl: 'https://pesticideindia.in/', icon:<Package size={28}/> },
-  
-  // ── Pestiseeds Agritech Actual Products ──
-  { id:14, name:'Mahyco BT Cotton Seeds (Bollgard II)', cat:'Seeds', price:864, unit:'450 g', rating:4.5, brand:'Mahyco', vendor:'pestiseeds', buyUrl: 'https://pestiseedsagritech.com/', icon:<Leaf size={28}/> },
-  { id:15, name:'Nunhems US 33 Tomato Interminate Seeds', cat:'Seeds', price:420, unit:'10 g', rating:4.8, brand:'Nunhems', vendor:'pestiseeds', buyUrl: 'https://pestiseedsagritech.com/', icon:<Leaf size={28}/> },
-  { id:16, name:'Advanta Golden Wonder Maize Seeds', cat:'Seeds', price:1850, unit:'4 kg', rating:4.6, brand:'Advanta', vendor:'pestiseeds', buyUrl: 'https://pestiseedsagritech.com/', icon:<Leaf size={28}/> },
+  // ── Agriplex India ──
+  { id:5,  name:'Syngenta Pegasus Insecticide (Diafenthiuron 50% WP)',                  cat:'Pesticide',       price:1290, unit:'500 g',    rating:4.8, brand:'Syngenta',     vendor:'agriplex',       buyUrl:'https://agriplexindia.com/search?q=Syngenta+Pegasus+Insecticide',       icon:<Package size={28}/> },
+  { id:6,  name:'UPL Saaf Fungicide (Carbendazim 12% + Mancozeb)',                      cat:'Fungicide',       price:450,  unit:'500 g',    rating:4.7, brand:'UPL',          vendor:'agriplex',       buyUrl:'https://agriplexindia.com/search?q=UPL+Saaf+Fungicide',                 icon:<FlaskConical size={28}/> },
+  { id:7,  name:'Bayer Fame Insecticide (Flubendiamide 39.35% SC)',                     cat:'Pesticide',       price:1350, unit:'100 ml',   rating:4.8, brand:'Bayer',        vendor:'agriplex',       buyUrl:'https://agriplexindia.com/search?q=Bayer+Fame+Insecticide',             icon:<Package size={28}/> },
+  { id:25, name:'Syngenta Amistar Top Fungicide (Azoxystrobin + Difenoconazole)',       cat:'Fungicide',       price:1680, unit:'1 L',      rating:4.8, brand:'Syngenta',     vendor:'agriplex',       buyUrl:'https://agriplexindia.com/search?q=Amistar+Top+Fungicide',              icon:<FlaskConical size={28}/> },
 
-  // ── Agri Search India Actual Products ──
-  { id:17, name:'Agri Search Mycorrhiza VAM Bio-Fertilizer', cat:'Bio Input', price:220, unit:'1 kg', rating:4.7, brand:'Agri Search', vendor:'agri_search', buyUrl: 'https://agrisearchindia.com/', icon:<Leaf size={28}/> },
-  { id:18, name:'Zinc Solubilizing Bacteria (ZSB Liquid)', cat:'Bio Input', price:180, unit:'1 L', rating:4.6, brand:'Agri Search', vendor:'agri_search', buyUrl: 'https://agrisearchindia.com/', icon:<FlaskConical size={28}/> },
+  // ── Paidavaar ──
+  { id:8,  name:'IFFCO Nano Urea Liquid (500 ml)',                                      cat:'Fertilizer',      price:240,  unit:'500 ml',   rating:4.8, brand:'IFFCO',        vendor:'paidavaar',      buyUrl:'https://paidavaar.in/?s=IFFCO+Nano+Urea',                               icon:<FlaskConical size={28}/> },
+  { id:9,  name:'Sumitomo Danitol Insecticide (Fenpropathrin 10% EC)',                  cat:'Pesticide',       price:650,  unit:'1 L',      rating:4.5, brand:'Sumitomo',     vendor:'paidavaar',      buyUrl:'https://paidavaar.in/?s=Sumitomo+Danitol+Fenpropathrin',                icon:<Package size={28}/> },
+  { id:10, name:'PI Industries Biovita Seaweed Extract',                                cat:'Growth Promoter', price:490,  unit:'500 ml',   rating:4.7, brand:'PI Industries', vendor:'paidavaar',      buyUrl:'https://paidavaar.in/?s=PI+Industries+Biovita+Seaweed',                 icon:<FlaskConical size={28}/> },
+  { id:26, name:'Dhanuka Zineb 75% WP Fungicide',                                       cat:'Fungicide',       price:280,  unit:'500 g',    rating:4.5, brand:'Dhanuka',      vendor:'paidavaar',      buyUrl:'https://paidavaar.in/?s=Dhanuka+Zineb+Fungicide',                       icon:<FlaskConical size={28}/> },
 
-  // ── Matihaat Actual Products (Organic & Sustainable) ──
-  { id:19, name:'Cold Pressed Neem Oil Extract (10000 PPM)', cat:'Organic', price:550, unit:'1 L', rating:4.8, brand:'Matihaat', vendor:'matihaat', buyUrl: 'https://matihaat.com/', icon:<Leaf size={28}/> },
-  { id:20, name:'Trichoderma Viride BioFungicide Premium', cat:'Organic', price:200, unit:'1 kg', rating:4.7, brand:'Matihaat', vendor:'matihaat', buyUrl: 'https://matihaat.com/', icon:<Leaf size={28}/> },
-  { id:21, name:'Pseudomonas Fluorescens Bio Bactericide', cat:'Organic', price:220, unit:'1 kg', rating:4.6, brand:'Matihaat', vendor:'matihaat', buyUrl: 'https://matihaat.com/', icon:<Leaf size={28}/> },
+  // ── Pesticide India ──
+  { id:11, name:'Dhanuka Craze Herbicide (Pretilachlor 50% EC)',                        cat:'Herbicide',       price:310,  unit:'500 ml',   rating:4.6, brand:'Dhanuka',      vendor:'pesticide_india', buyUrl:'https://pesticideindia.in/?s=Dhanuka+Craze+Pretilachlor',               icon:<Package size={28}/> },
+  { id:12, name:'Crystal Abacin (Abamectin 1.9% EC)',                                   cat:'Pesticide',       price:480,  unit:'250 ml',   rating:4.5, brand:'Crystal Crop', vendor:'pesticide_india', buyUrl:'https://pesticideindia.in/?s=Crystal+Abacin+Abamectin',                icon:<Package size={28}/> },
+  { id:13, name:'Katyayani Imidacloprid 17.8% SL',                                     cat:'Pesticide',       price:400,  unit:'500 ml',   rating:4.6, brand:'Katyayani',    vendor:'pesticide_india', buyUrl:'https://pesticideindia.in/?s=Katyayani+Imidacloprid',                   icon:<Package size={28}/> },
+  { id:27, name:'Bayer Solomon Insecticide (Imidacloprid + Beta Cyfluthrin)',           cat:'Pesticide',       price:720,  unit:'250 ml',   rating:4.7, brand:'Bayer',        vendor:'pesticide_india', buyUrl:'https://pesticideindia.in/?s=Bayer+Solomon+Insecticide',                icon:<Package size={28}/> },
 
-  // ── Invade Agro Global Actual Products ──
-  { id:22, name:'NPK 19:19:19 Water Soluble Fertilizer Import', cat:'Fertilizer', price:1800, unit:'25 kg', rating:4.5, brand:'Invade', vendor:'invade', buyUrl: 'https://invadeagro.com/', icon:<FlaskConical size={28}/> },
-  { id:23, name:'Humic Acid 98% Flakes (Soil Conditioner)', cat:'Growth Promoter', price:450, unit:'1 kg', rating:4.8, brand:'Invade', vendor:'invade', buyUrl: 'https://invadeagro.com/', icon:<FlaskConical size={28}/> },
-  { id:24, name:'Global Drip Irrigation Dripper Set (8 LPH)', cat:'Equipment', price:1200, unit:'100 Pcs', rating:4.9, brand:'Invade', vendor:'invade', buyUrl: 'https://invadeagro.com/', icon:<Package size={28}/> },
+  // ── Pestiseeds Agritech ──
+  { id:14, name:'Mahyco BT Cotton Seeds (Bollgard II)',                                 cat:'Seeds',           price:864,  unit:'450 g',    rating:4.5, brand:'Mahyco',       vendor:'pestiseeds',      buyUrl:'https://pestiseedsagritech.com/?s=Mahyco+BT+Cotton+Seeds',             icon:<Leaf size={28}/> },
+  { id:15, name:'Nunhems US 33 Tomato Indeterminate Seeds',                             cat:'Seeds',           price:420,  unit:'10 g',     rating:4.8, brand:'Nunhems',      vendor:'pestiseeds',      buyUrl:'https://pestiseedsagritech.com/?s=Nunhems+Tomato+Seeds',                icon:<Leaf size={28}/> },
+  { id:16, name:'Advanta Golden Wonder Maize Seeds',                                   cat:'Seeds',           price:1850, unit:'4 kg',     rating:4.6, brand:'Advanta',      vendor:'pestiseeds',      buyUrl:'https://pestiseedsagritech.com/?s=Advanta+Maize+Seeds',                 icon:<Leaf size={28}/> },
+  { id:28, name:'Syngenta NK 6240 Maize Hybrid Seeds',                                 cat:'Seeds',           price:1650, unit:'4 kg',     rating:4.7, brand:'Syngenta',     vendor:'pestiseeds',      buyUrl:'https://pestiseedsagritech.com/?s=Syngenta+NK+6240+Maize',              icon:<Leaf size={28}/> },
+
+  // ── Agri Search India ──
+  { id:17, name:'Agri Search Mycorrhiza VAM Bio-Fertilizer',                           cat:'Bio Input',       price:220,  unit:'1 kg',     rating:4.7, brand:'Agri Search',  vendor:'agri_search',     buyUrl:'https://agrisearchindia.com/?s=Mycorrhiza+VAM+Bio+Fertilizer',         icon:<Leaf size={28}/> },
+  { id:18, name:'Zinc Solubilizing Bacteria (ZSB Liquid)',                             cat:'Bio Input',       price:180,  unit:'1 L',      rating:4.6, brand:'Agri Search',  vendor:'agri_search',     buyUrl:'https://agrisearchindia.com/?s=Zinc+Solubilizing+Bacteria',            icon:<FlaskConical size={28}/> },
+  { id:29, name:'Phosphate Solubilizing Bacteria (PSB Liquid Bio-Fertilizer)',         cat:'Bio Input',       price:160,  unit:'1 L',      rating:4.6, brand:'Agri Search',  vendor:'agri_search',     buyUrl:'https://agrisearchindia.com/?s=Phosphate+Solubilizing+Bacteria',       icon:<FlaskConical size={28}/> },
+
+  // ── Matihaat (Organic & Sustainable) ──
+  { id:19, name:'Cold Pressed Neem Oil Extract (10000 PPM)',                           cat:'Organic',         price:550,  unit:'1 L',      rating:4.8, brand:'Matihaat',     vendor:'matihaat',        buyUrl:'https://matihaat.com/?s=Neem+Oil+Extract+10000+PPM',                   icon:<Leaf size={28}/> },
+  { id:20, name:'Trichoderma Viride BioFungicide Premium',                             cat:'Organic',         price:200,  unit:'1 kg',     rating:4.7, brand:'Matihaat',     vendor:'matihaat',        buyUrl:'https://matihaat.com/?s=Trichoderma+Viride+BioFungicide',              icon:<Leaf size={28}/> },
+  { id:21, name:'Pseudomonas Fluorescens Bio Bactericide',                             cat:'Organic',         price:220,  unit:'1 kg',     rating:4.6, brand:'Matihaat',     vendor:'matihaat',        buyUrl:'https://matihaat.com/?s=Pseudomonas+Fluorescens+Bio+Bactericide',     icon:<Leaf size={28}/> },
+  { id:30, name:'Vermicompost Premium Organic Soil Enricher',                          cat:'Organic',         price:350,  unit:'5 kg',     rating:4.8, brand:'Matihaat',     vendor:'matihaat',        buyUrl:'https://matihaat.com/?s=Vermicompost+Organic+Soil+Enricher',          icon:<Leaf size={28}/> },
+
+  // ── Invade Agro Global ──
+  { id:22, name:'NPK 19:19:19 Water Soluble Fertilizer',                               cat:'Fertilizer',      price:1800, unit:'25 kg',    rating:4.5, brand:'Invade',       vendor:'invade',          buyUrl:'https://invadeagro.com/?s=NPK+19+19+19+Water+Soluble+Fertilizer',     icon:<FlaskConical size={28}/> },
+  { id:23, name:'Humic Acid 98% Flakes (Soil Conditioner)',                            cat:'Growth Promoter', price:450,  unit:'1 kg',     rating:4.8, brand:'Invade',       vendor:'invade',          buyUrl:'https://invadeagro.com/?s=Humic+Acid+98+Flakes+Soil+Conditioner',    icon:<FlaskConical size={28}/> },
+  { id:24, name:'Global Drip Irrigation Dripper Set (8 LPH)',                          cat:'Equipment',       price:1200, unit:'100 Pcs',  rating:4.9, brand:'Invade',       vendor:'invade',          buyUrl:'https://invadeagro.com/?s=Drip+Irrigation+Dripper+Set+8LPH',         icon:<Package size={28}/> },
+  { id:31, name:'Potassium Humate 98% Shiny Flakes (K-Humate)',                        cat:'Growth Promoter', price:520,  unit:'1 kg',     rating:4.7, brand:'Invade',       vendor:'invade',          buyUrl:'https://invadeagro.com/?s=Potassium+Humate+98+Shiny+Flakes',         icon:<FlaskConical size={28}/> },
 ]
 
 const CATS = ['All','Seeds','Fertilizer','Pesticide','Fungicide','Herbicide','Organic','Equipment','Bio Input', 'Growth Promoter']
