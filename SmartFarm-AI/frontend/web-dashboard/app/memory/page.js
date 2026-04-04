@@ -1253,19 +1253,22 @@ function SimpleModal({ title, color, fields, onSubmit, onClose }) {
 }
 
 // ── Edit Farm Profile Modal ─────────────────────────────────────
+// ProfileField must be at module scope so React never remounts it on re-render
+function ProfileField({ label, fieldKey, type = 'text', form, set }) {
+  return (
+    <div>
+      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+      <input type={type} value={form[fieldKey] || ''} onChange={e => set(fieldKey, e.target.value)}
+        className="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none bg-white"/>
+    </div>
+  )
+}
 function EditProfileModal({ profile, onSave, onClose }) {
   const [form, setForm] = useState({...profile, preferred_crops: Array.isArray(profile.preferred_crops) ? profile.preferred_crops.join(', ') : profile.preferred_crops})
   const set = (k, v) => setForm(p => ({...p, [k]: v}))
   const handleSave = () => {
     onSave({ ...form, size_ha: parseFloat(form.size_ha)||form.size_ha, preferred_crops: form.preferred_crops.split(',').map(s=>s.trim()) })
   }
-  const F = ({label, k, type='text'}) => (
-    <div>
-      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
-      <input type={type} value={form[k]||''} onChange={e=>set(k,e.target.value)}
-        className="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm font-medium focus:border-emerald-500 focus:outline-none bg-white"/>
-    </div>
-  )
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <motion.div initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}}
@@ -1275,16 +1278,16 @@ function EditProfileModal({ profile, onSave, onClose }) {
           <button onClick={onClose} className="text-white/70 hover:text-white text-2xl font-bold">✕</button>
         </div>
         <div className="p-6 grid grid-cols-2 gap-4">
-          <F label="Farmer Name" k="farmer_name"/>
-          <F label="Farm Name" k="farm_name"/>
-          <F label="Location" k="location"/>
-          <F label="State" k="state"/>
-          <F label="Farm Size (ha)" k="size_ha" type="number"/>
-          <F label="Soil Type" k="soil_type"/>
-          <F label="Irrigation Setup" k="irrigation"/>
-          <F label="Bank" k="bank"/>
-          <F label="Phone" k="phone"/>
-          <F label="Established Year" k="established_year" type="number"/>
+          <ProfileField label="Farmer Name"      fieldKey="farmer_name"      form={form} set={set}/>
+          <ProfileField label="Farm Name"         fieldKey="farm_name"        form={form} set={set}/>
+          <ProfileField label="Location"          fieldKey="location"         form={form} set={set}/>
+          <ProfileField label="State"             fieldKey="state"            form={form} set={set}/>
+          <ProfileField label="Farm Size (ha)"    fieldKey="size_ha"          form={form} set={set} type="number"/>
+          <ProfileField label="Soil Type"         fieldKey="soil_type"        form={form} set={set}/>
+          <ProfileField label="Irrigation Setup"  fieldKey="irrigation"       form={form} set={set}/>
+          <ProfileField label="Bank"              fieldKey="bank"             form={form} set={set}/>
+          <ProfileField label="Phone"             fieldKey="phone"            form={form} set={set}/>
+          <ProfileField label="Established Year"  fieldKey="established_year" form={form} set={set} type="number"/>
           <div className="col-span-2">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Preferred Crops (comma-separated)</label>
             <input value={form.preferred_crops||''} onChange={e=>set('preferred_crops',e.target.value)}
