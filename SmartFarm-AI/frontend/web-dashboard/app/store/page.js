@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 // Our 8 major agri platform partners
 const VENDORS = [
-  { id: 'bighaat', name: 'BigHaat', badge: 'India\'s Largest', url: 'https://www.bighaat.com/', searchUrl: 'https://www.bighaat.com/search?q=', linkColor: 'text-orange-500' },
+  { id: 'bighaat', name: 'BigHaat', badge: 'India\'s Largest', url: 'https://www.bighaat.com/', searchUrl: 'https://www.bighaat.com/search/', linkColor: 'text-orange-500' },
   { id: 'agriplex', name: 'Agriplex India', badge: 'FMC & Syngenta', url: 'https://agriplexindia.com/', searchUrl: 'https://agriplexindia.com/search?q=', linkColor: 'text-green-600' },
   { id: 'paidavaar', name: 'Paidavaar', badge: 'Crop Protection', url: 'https://paidavaar.in/', searchUrl: 'https://paidavaar.in/?s=', linkColor: 'text-blue-500' },
   { id: 'pesticide_india', name: 'Pesticide India', badge: 'Dedicated Pesticides', url: 'https://pesticideindia.in/', searchUrl: 'https://pesticideindia.in/?s=', linkColor: 'text-red-500' },
@@ -22,10 +22,10 @@ const VENDORS = [
 // Massive realistic catalog simulating the exact catalogs of those platforms with direct buy URLs
 const products = [
   // ── BigHaat ──
-  { id:1,  name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide',       price:1150, unit:'250 ml',   rating:4.8, brand:'Syngenta',     vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Syngenta+Alika+Insecticide',            icon:<Package size={28}/> },
-  { id:2,  name:'Bayer Nativo Fungicide (Tebuconazole + Trifloxystrobin)',               cat:'Fungicide',       price:2450, unit:'1 kg',     rating:4.9, brand:'Bayer',        vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Bayer+Nativo+Fungicide',                icon:<FlaskConical size={28}/> },
-  { id:3,  name:'Tata Rallis Asataf (Acephate 75% SP)',                                  cat:'Pesticide',       price:850,  unit:'1 kg',     rating:4.6, brand:'Tata Rallis',  vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=Tata+Rallis+Asataf+Acephate',          icon:<Package size={28}/> },
-  { id:4,  name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)',                cat:'Pesticide',       price:1850, unit:'150 ml',   rating:4.9, brand:'FMC',          vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search?q=FMC+Coragen+Insecticide',              icon:<Package size={28}/> },
+  { id:1,  name:'Syngenta Alika Insecticide (Thiamethoxam 12.6% + Lambda Cyhalothrin)', cat:'Pesticide',       price:1150, unit:'250 ml',   rating:4.8, brand:'Syngenta',     vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search/Syngenta%20Alika%20Insecticide',          icon:<Package size={28}/> },
+  { id:2,  name:'Bayer Nativo Fungicide (Tebuconazole + Trifloxystrobin)',               cat:'Fungicide',       price:2450, unit:'1 kg',     rating:4.9, brand:'Bayer',        vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search/Bayer%20Nativo%20Fungicide',              icon:<FlaskConical size={28}/> },
+  { id:3,  name:'Tata Rallis Asataf (Acephate 75% SP)',                                  cat:'Pesticide',       price:850,  unit:'1 kg',     rating:4.6, brand:'Tata Rallis',  vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search/Tata%20Rallis%20Asataf%20Acephate',       icon:<Package size={28}/> },
+  { id:4,  name:'FMC Coragen Insecticide (Chlorantraniliprole 18.5% SC)',                cat:'Pesticide',       price:1850, unit:'150 ml',   rating:4.9, brand:'FMC',          vendor:'bighaat',        buyUrl:'https://www.bighaat.com/search/FMC%20Coragen%20Insecticide',             icon:<Package size={28}/> },
 
   // ── Agriplex India ──
   { id:5,  name:'Syngenta Pegasus Insecticide (Diafenthiuron 50% WP)',                  cat:'Pesticide',       price:1290, unit:'500 g',    rating:4.8, brand:'Syngenta',     vendor:'agriplex',       buyUrl:'https://agriplexindia.com/search?q=Syngenta+Pegasus+Insecticide',       icon:<Package size={28}/> },
