@@ -1,9 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { 
-  Sprout, Droplet, TrendingUp, Truck, Wrench, Users, ShoppingCart, Mic
+  Sprout, Droplet, TrendingUp, Truck, Wrench, Users,
+  ShoppingCart, Mic, BookOpen, Landmark, Map, LayoutDashboard
 } from 'lucide-react'
 
 // WMO Weather interpretation codes → human-readable label + colour
@@ -66,14 +67,17 @@ function useRealTimeWeather() {
 }
 
 const modules = [
-  { id: 1, title: 'Crop Health AI', icon: <Sprout size={32} />, desc: 'Detect diseases from leaf images via YOLOv8', color: 'bg-green-100 text-green-600', link: '/disease-detect' },
-  { id: 2, title: 'IoT Irrigation', icon: <Droplet size={32} />, desc: 'Real-time soil moisture and digital twin', color: 'bg-blue-100 text-blue-600', link: '/irrigation' },
-  { id: 3, title: 'Mandi Prices', icon: <TrendingUp size={32} />, desc: 'AI forecasted crop prices and trends', color: 'bg-purple-100 text-purple-600', link: '/prices' },
-  { id: 4, title: 'Route Optimizer', icon: <Truck size={32} />, desc: 'Calculate the most profitable route', color: 'bg-orange-100 text-orange-600', link: '/routes' },
-  { id: 5, title: 'Equipment', icon: <Wrench size={32} />, desc: 'Rent tractors, drones, and harvesters', color: 'bg-slate-200 text-slate-700', link: '/equipment' },
-  { id: 6, title: 'Labor Hub', icon: <Users size={32} />, desc: 'Hire skilled workers near your farm', color: 'bg-teal-100 text-teal-600', link: '/labor' },
-  { id: 7, title: 'Agri Inputs', icon: <ShoppingCart size={32} />, desc: 'Buy seeds, fertilizers & pesticides', color: 'bg-amber-100 text-amber-600', link: '/store' },
-  { id: 8, title: 'Voice AI', icon: <Mic size={32} />, desc: 'Multilingual queries via LLM', color: 'bg-rose-100 text-rose-600', link: '/voice' },
+  { id:1,  title:'Crop Health AI',     icon:<Sprout size={32}/>,      desc:'Detect diseases from leaf images via YOLOv8',           color:'bg-green-100 text-green-600',   link:'/disease-detect' },
+  { id:2,  title:'IoT Irrigation',     icon:<Droplet size={32}/>,      desc:'Real-time soil moisture and digital twin',              color:'bg-blue-100 text-blue-600',     link:'/irrigation' },
+  { id:3,  title:'Crop Recommender',   icon:<Map size={32}/>,          desc:'AI-powered crop selection and profit optimisation',     color:'bg-violet-100 text-violet-600', link:'/recommend' },
+  { id:4,  title:'Mandi Prices',       icon:<TrendingUp size={32}/>,   desc:'AI forecasted crop prices and market trends',           color:'bg-purple-100 text-purple-600', link:'/prices' },
+  { id:5,  title:'Route Optimizer',    icon:<Truck size={32}/>,        desc:'Calculate the most profitable mandi route',             color:'bg-orange-100 text-orange-600', link:'/routes' },
+  { id:6,  title:'Equipment Rental',   icon:<Wrench size={32}/>,       desc:'Rent tractors, drones, and harvesters',                 color:'bg-slate-200 text-slate-700',   link:'/equipment' },
+  { id:7,  title:'Labor Hub',          icon:<Users size={32}/>,        desc:'Hire skilled agricultural workers near your farm',      color:'bg-teal-100 text-teal-600',     link:'/labor' },
+  { id:8,  title:'Agri Inputs',        icon:<ShoppingCart size={32}/>, desc:'Buy seeds, fertilizers & pesticides from top vendors',  color:'bg-amber-100 text-amber-600',   link:'/store' },
+  { id:9,  title:'Voice Assistant',    icon:<Mic size={32}/>,          desc:'Multilingual queries via LLM in your local language',   color:'bg-rose-100 text-rose-600',     link:'/voice' },
+  { id:10, title:'Govt Schemes',       icon:<Landmark size={32}/>,     desc:'Discover PM-KISAN, crop insurance & subsidy schemes',   color:'bg-yellow-100 text-yellow-700', link:'/schemes' },
+  { id:11, title:'Farm Memory',        icon:<BookOpen size={32}/>,     desc:'Persistent intelligence — full crop & soil history',    color:'bg-emerald-100 text-emerald-700',link:'/memory' },
 ]
 
 export default function Home() {
@@ -85,7 +89,7 @@ export default function Home() {
       <div className="mb-10 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Farm Overview</h1>
-          <p className="text-slate-500 mt-2">Welcome back, Ramesh! Your field is in good condition.</p>
+          <p className="text-slate-500 mt-2">Welcome back! Your field is in good condition today.</p>
         </div>
         <div className="text-right glass-panel px-6 py-3 rounded-xl">
           <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">Curr Weather</p>
@@ -134,7 +138,7 @@ export default function Home() {
 
       {/* Modules Grid */}
       <h2 className="text-xl font-bold text-slate-800 mb-6">Operations Hub</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {modules.map((mod, i) => (
           <Link href={mod.link} key={mod.id}>
             <motion.div 
